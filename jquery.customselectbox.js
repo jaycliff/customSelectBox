@@ -255,7 +255,7 @@
         return wrap;
     }
     function eacher() {
-        var $this, options = eacher.options, key;
+        var $this, options = eacher.options || { 'min-width': '50px' }, key;
         if (this.tagName.toLowerCase() === 'select') {
             if (!$.data(this, 'csb-$this')) {
                 $this = $(this);
