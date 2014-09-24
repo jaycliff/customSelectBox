@@ -18,7 +18,43 @@
 (function ($) {
     "use strict";
     // $.fn === $.prototype
-    var $document = $(document), list_of_csb = [];
+    var $document = $(document),
+        list_of_csb = [],
+        hasClass,
+        addClass,
+        removeClass;
+    if (!document.documentElement.classList) {
+        (function () {
+            var collection_of_regex = {};
+            hasClass = function (element, cls) {
+                if (!collection_of_regex.hasOwnProperty(cls)) {
+                    collection_of_regex[cls] = new RegExp('(?:^|\\s)' + cls + '(?!\\S)', 'g');
+                }
+                return element.className.match(collection_of_regex[cls]);
+            };
+            addClass = function (element, cls) {
+                if (!hasClass(element, cls)) {
+                    element.className += (' ' + cls);
+                }
+            };
+            removeClass = function (element, cls) {
+                if (!collection_of_regex.hasOwnProperty(cls)) {
+                    collection_of_regex[cls] = new RegExp('(?:^|\\s)' + cls + '(?!\\S)', 'g');
+                }
+                element.className = element.className.replace(collection_of_regex[cls], '');
+            };
+        }());
+    } else {
+        hasClass = function (element, cls) {
+            return element.classList.contains(cls);
+        };
+        addClass = function (element, cls) {
+            element.classList.add(cls);
+        };
+        removeClass = function (element, cls) {
+            element.classList.remove(cls);
+        };
+    }
     function createSelectBoxStructure($this) {
         var wrap = document.createElement('div'),
             $wrap,
@@ -60,8 +96,8 @@
         }
         updateChildren();
         function closeCSB() {
-            csb_single.parentNode.classList.remove('csb-with-drop');
-            csb_single.parentNode.classList.remove('csb-container-active');
+            removeClass(csb_single.parentNode, 'csb-with-drop');
+            removeClass(csb_single.parentNode, 'csb-container-active');
             $document.off('mousedown', closeCSB);
         }
         function openCSB() {
@@ -69,8 +105,8 @@
             for (i = 0; i < length; i += 1) {
                 list_of_csb[i].trigger('csb:close-proxy');
             }
-            csb_single.parentNode.classList.add('csb-with-drop');
-            csb_single.parentNode.classList.add('csb-container-active');
+            addClass(csb_single.parentNode, 'csb-with-drop');
+            addClass(csb_single.parentNode, 'csb-container-active');
             $document.on('mousedown', closeCSB);
         }
         $this.on('csb:close-proxy', closeCSB);
@@ -103,25 +139,25 @@
                 }
             };
         }());
-        wrap.classList.add('csb-container');
-        wrap.classList.add('csb-container-single');
+        addClass(wrap, 'csb-container');
+        addClass(wrap, 'csb-container-single');
         if ($this.prop('disabled')) {
-            wrap.classList.add('csb-disabled');
+            addClass(wrap, 'csb-disabled');
         }
         csb_single = document.createElement('div');
-        csb_single.classList.add('csb-single');
+        addClass(csb_single, 'csb-single');
         csb_label = document.createElement('span');
-        csb_label.classList.add('csb-label');
+        addClass(csb_label, 'csb-label');
         csb_single.appendChild(csb_label);
         csb_arrow = document.createElement('span');
-        csb_arrow.classList.add('csb-arrow');
+        addClass(csb_arrow, 'csb-arrow');
         csb_single.appendChild(csb_arrow);
         wrap.appendChild(csb_single);
         // bottom
         csb_drop = document.createElement('div');
-        csb_drop.classList.add('csb-drop');
+        addClass(csb_drop, 'csb-drop');
         csb_option_list = document.createElement('ul');
-        csb_option_list.classList.add('csb-option-list');
+        addClass(csb_option_list, 'csb-option-list');
         function createDropdownStructure() {
             var i, length, li;
             for (i = 0, length = children.length; i < length; i += 1) {
@@ -129,64 +165,37 @@
                 switch (children[i].tagName.toLowerCase()) {
                 case 'optgroup':
                     optgroup = children[i];
-                    li.classList.add('group-result');
+                    addClass(li, 'group-result');
                     li.textContent = children[i].label;
                     break;
                 case 'option':
                     if (!children[i].hasAttribute('disabled')) {
-                        li.classList.add('active-result');
+                        addClass(li, 'active-result');
                     } else {
-                        li.classList.add('disabled-result');
+                        addClass(li, 'disabled-result');
                     }
-                    //li.setAttribute('data-csb-option-index', index);
-                    li.dataset.csbOptionIndex = index;
+                    $.data(li, 'csb-option-index', index);
                     if (optgroup && children[i].parentNode === optgroup) {
-                        li.classList.add('group-option');
+                        addClass(li, 'group-option');
                     }
                     li.textContent = children[i].textContent;
                     //console.log($this[0].name);
                     if (children[i].value === $this[0].value && index === $this[0].selectedIndex) {
                         if ($this[0].selectedIndex === 0 && i === 0) {
-                            csb_single.classList.add('csb-default');
+                            addClass(csb_single, 'csb-default');
                         }
                         csb_label.textContent = li.textContent;
-                        li.classList.add('csb-selected');
+                        addClass(li, 'csb-selected');
                         selected_item = li;
                         if (children[i].hasAttribute('disabled')) {
-                            csb_single.classList.add('csb-default');
-                            li.classList.add('disabled-result');
+                            addClass(csb_single, 'csb-default');
+                            addClass(li, 'disabled-result');
                         }
                     }
-                    /*
-                    if (!selected_item) {
-                        if (i === 0) {
-                            csb_single.classList.add('csb-default');
-                        }
-                        if (index === 0) {
-                            //csb_single.classList.add('csb-default');
-                            csb_label.textContent = li.textContent;
-                            li.classList.add('csb-selected');
-                            selected_item = li;
-                            if (children[i].hasAttribute('disabled')) {
-                                csb_single.classList.add('csb-default');
-                                li.classList.add('disabled-result');
-                            }
-                        }
-                    } else {
-                        if ($this[0].value === children[i].value) {
-                            if (i === 0 || children[i].hasAttribute('disabled')) {
-                                csb_single.classList.add('csb-default');
-                            }
-                            csb_label.textContent = li.textContent;
-                            li.classList.add('csb-selected');
-                            selected_item = li;
-                        }
-                    }
-                    */
                     index += 1;
                     break;
                 }
-                li.dataset.csbOptionRawIndex = i;
+                $.data(li, 'csb-option-raw-index', i);
                 csb_option_list.appendChild(li);
             }
         }
@@ -196,7 +205,7 @@
         $this.data('csb:update-proxy-structure', function () {
             list_pool.shave(csb_option_list);
             updateChildren();
-            csb_single.classList.remove('csb-default');
+            removeClass(csb_single, 'csb-default');
             index = 0;
             createDropdownStructure();
         });
@@ -211,7 +220,7 @@
             if ($this[0].hasAttribute('disabled')) {
                 return;
             }
-            if (!csb_single.parentNode.classList.contains('csb-with-drop')) {
+            if (!hasClass(csb_single.parentNode, 'csb-with-drop')) {
                 openCSB();
             } else {
                 closeCSB();
@@ -227,22 +236,20 @@
             event.stopPropagation();
         });
         $csb_drop.on('mousedown', 'li.active-result', function () {
-            var option_index = parseInt(this.dataset.csbOptionIndex, 10), item_index = parseInt(this.dataset.csbOptionRawIndex, 10);
+            var option_index = $.data(this, 'csb-option-index'), item_index = $.data(this, 'csb-option-raw-index');
             if (item_index > 0) {
-                csb_single.classList.remove('csb-default');
+                removeClass(csb_single, 'csb-default');
             } else {
-                csb_single.classList.add('csb-default');
+                addClass(csb_single, 'csb-default');
             }
-            selected_item.classList.remove('csb-selected');
+            removeClass(selected_item, 'csb-selected');
             selected_item = this;
-            this.classList.add('csb-selected');
+            addClass(this, 'csb-selected');
             $this.prop('selectedIndex', option_index).trigger('change');
             csb_label.textContent = this.textContent;
             //console.log(option_index);
-            //console.log(this.dataset.csbOptionIndex);
             closeCSB();
         });
-        $wrap.css('min-width', $csb_drop.width() + parseInt(csb_arrow.style.width, 10) + 'px');
         console.log($wrap);
         // return the newly created elements
         return wrap;
@@ -254,7 +261,6 @@
                 $this = $(this);
                 list_of_csb.push($this);
                 $.data(this, 'csb-$this', $this);
-                //$.data(this, 'csb-$children', $this.find('optgroup, option'));
                 $.data(this, 'csb-proxy', createSelectBoxStructure($this));
                 for (key in options) {
                     if (options.hasOwnProperty(key)) {
@@ -271,14 +277,14 @@
                 $this.on('csb:update-proxy', function () {
                     //console.log('This is where we update the proxy');
                     if (this.selectedIndex === -1) {
-                        $this.data('csb-$csb_label').text(this.dataset.placeholder);
+                        $this.data('csb-$csb_label').text(this.getAttribute('data-placeholder'));
                     } else {
                         $this.data('csb-$csb_label').text($this[0].value);
                     }
                     if ($this[0].hasAttribute('disabled')) {
-                        $this.data('csb-$wrap')[0].classList.add('csb-disabled');
+                        addClass($this.data('csb-$wrap')[0], 'csb-disabled');
                     } else {
-                        $this.data('csb-$wrap')[0].classList.remove('csb-disabled');
+                        removeClass($this.data('csb-$wrap')[0], 'csb-disabled');
                     }
                     $this.data('csb:update-proxy-structure')();
                 });
@@ -290,7 +296,6 @@
                     set: function setter(value) {
                         this.selectedIndex = value;
                         $this.trigger('csb:update-proxy');
-                        //$this.trigger('change');
                     }
                 });
                 // End experiment
