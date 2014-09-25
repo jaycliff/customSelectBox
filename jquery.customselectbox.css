@@ -56,6 +56,10 @@
     color: #999999;
 }
 
+.csb-container .csb-empty .csb-label {
+    color: #999999;
+}
+
 .csb-container .csb-arrow {
     display: block;
     position: absolute;
