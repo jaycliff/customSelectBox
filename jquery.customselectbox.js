@@ -199,7 +199,7 @@
         createDropdownStructure();
         csb_drop.appendChild(csb_option_list);
         wrap.appendChild(csb_drop);
-        $this.data('csb:update-proxy-structure', function () {
+        $this.data('csb:refresh-proxy-structure', function () {
             list_pool.shave(csb_option_list);
             updateChildren();
             removeClass(csb_single, 'csb-default');
@@ -282,7 +282,7 @@
                     } else {
                         removeClass($this.data('csb-$wrap')[0], 'csb-disabled');
                     }
-                    $this.data('csb:update-proxy-structure')();
+                    $this.data('csb:refresh-proxy-structure')();
                 });
                 // Start experiment
                 Object.defineProperty($this.get(0), 'csbSelectedIndex', {
