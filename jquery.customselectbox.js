@@ -66,7 +66,6 @@
             $csb_drop,
             csb_arrow,
             csb_option_list,
-            $active_result,
             optgroup,
             // children contains all options and optgroups of a given select element. used in generating the list items of the proxy
             children = [],
@@ -114,7 +113,6 @@
         // this is where the list elements get created/recycled
         list_pool = (function listPoolSetup() {
             var pool = [];
-            window.pool = pool;
             return {
                 'summon': function summon() {
                     var list;
@@ -214,7 +212,6 @@
         $wrap = $(wrap);
         $this.data('csb-$wrap', $wrap);
         $csb_single = $(csb_single);
-        $this.data('csb-$csb_single', $csb_single);
         $csb_single.on('mousedown', function (event) {
             event.stopPropagation();
             if ($this[0].hasAttribute('disabled')) {
@@ -229,9 +226,6 @@
         $csb_label = $(csb_label);
         $this.data('csb-$csb_label', $csb_label);
         $csb_drop = $(csb_drop);
-        $this.data('csb-$csb_drop', $csb_drop);
-        $active_result = $wrap.find('li.active-result');
-        $this.data('csb-$active_result', $active_result);
         $csb_drop.on('mousedown', function (event) {
             event.stopPropagation();
         });
@@ -250,7 +244,6 @@
             //console.log(option_index);
             closeCSB();
         });
-        console.log($wrap);
         // return the newly created elements
         return wrap;
     }
@@ -281,7 +274,7 @@
                     } else {
                         $this.data('csb-$csb_label').text($this[0].value);
                     }
-                    if ($this[0].hasAttribute('disabled')) {
+                    if ($this.prop('disabled')) {
                         addClass($this.data('csb-$wrap')[0], 'csb-disabled');
                     } else {
                         removeClass($this.data('csb-$wrap')[0], 'csb-disabled');
