@@ -115,12 +115,16 @@
 .csb-container .csb-drop ul {
     padding: 0;
     margin: 0;
+    max-height: 144px;
     list-style: none;
     overflow-x: hidden;
     overflow-y: auto;
 }
 
 .csb-container .csb-drop ul li {
+    height: 18px;
+    line-height: 18px;
+    white-space: nowrap;
     padding: 0 4px;
     cursor: default;
 }
