@@ -20,6 +20,7 @@
     // $.fn === $.prototype
     var $document = $(document),
         list_of_csb = [],
+        extend_options,
         hasClass,
         addClass,
         removeClass,
@@ -260,8 +261,9 @@
         return wrap;
     }
     function eacher() {
-        var $this, options = eacher.options || eacher.default_options, key;
+        var $this, options, key;
         if (this.tagName.toLowerCase() === 'select') {
+            options = eacher.options || eacher.default_options;
             if (!$.data(this, 'csb-$this')) {
                 $this = $(this);
                 list_of_csb.push($this);
@@ -321,7 +323,7 @@
         }
     }
     eacher.default_options = { 'min-width': '50px' };
-    $.fn.extend({
+    extend_options = {
         customSelectBox: function customSelectBox(options) {
             if (!options) {
                 if (eacher.hasOwnProperty('options')) {
@@ -333,5 +335,6 @@
             this.each(eacher);
             return this;
         }
-    });
+    };
+    $.fn.extend(extend_options);
 }(jQuery));
