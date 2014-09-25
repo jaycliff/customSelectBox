@@ -22,7 +22,9 @@
         list_of_csb = [],
         hasClass,
         addClass,
-        removeClass;
+        removeClass,
+        placeholder_text = '',
+        default_placeholder_text = 'Select an item';
     if (!document.documentElement.classList) {
         (function () {
             var collection_of_regex = {};
@@ -156,6 +158,15 @@
         addClass(csb_drop, 'csb-drop');
         csb_option_list = document.createElement('ul');
         addClass(csb_option_list, 'csb-option-list');
+        placeholder_text = $this[0].getAttribute('data-placeholder');
+        if ($this[0].selectedIndex === -1) {
+            if (placeholder_text) {
+                csb_label.textContent = placeholder_text;
+            } else {
+                csb_label.textContent = default_placeholder_text;
+            }
+            addClass(csb_single, 'csb-empty');
+        }
         function createDropdownStructure() {
             var i, length, li;
             for (i = 0, length = children.length; i < length; i += 1) {
@@ -237,7 +248,7 @@
             } else {
                 addClass(csb_single, 'csb-default');
             }
-            removeClass(selected_item, 'csb-selected');
+            if (selected_item) { removeClass(selected_item, 'csb-selected'); }
             selected_item = this;
             addClass(this, 'csb-selected');
             $this.prop('selectedIndex', option_index).trigger('change');
@@ -249,7 +260,7 @@
         return wrap;
     }
     function eacher() {
-        var $this, options = eacher.options || { 'min-width': '50px' }, key;
+        var $this, options = eacher.options || eacher.default_options, key;
         if (this.tagName.toLowerCase() === 'select') {
             if (!$.data(this, 'csb-$this')) {
                 $this = $(this);
@@ -270,8 +281,14 @@
                 }
                 $this.on('csb:update-proxy', function () {
                     //console.log('This is where we update the proxy');
+                    console.log(placeholder_text);
                     if (this.selectedIndex === -1) {
-                        $this.data('csb-$csb_label').text(this.getAttribute('data-placeholder'));
+                        placeholder_text = this.getAttribute('data-placeholder');
+                        if (placeholder_text) {
+                            $this.data('csb-$csb_label').text(placeholder_text);
+                        } else {
+                            $this.data('csb-$csb_label').text(default_placeholder_text);
+                        }
                         addClass($this.data('csb-$csb_single')[0], 'csb-empty');
                     } else {
                         $this.data('csb-$csb_label').text($this[0].value);
@@ -298,10 +315,12 @@
                 $this.hide();
             } else {
                 $this = $.data(this, 'csb-$this');
+                console.log('This select box already has an existing customSelectBox instance');
             }
             //console.log('Plugin is not ready');
         }
     }
+    eacher.default_options = { 'min-width': '50px' };
     $.fn.extend({
         customSelectBox: function customSelectBox(options) {
             if (!options) {
@@ -312,6 +331,7 @@
                 eacher.options = options;
             }
             this.each(eacher);
+            return this;
         }
     });
 }(jQuery));
