@@ -352,7 +352,7 @@
                 }
                 $this.on('csb:update-proxy', function () {
                     //console.log('This is where we update the proxy');
-                    console.log(placeholder_text);
+                    //console.log(placeholder_text);
                     if (this.selectedIndex === -1) {
                         placeholder_text = this.getAttribute('data-placeholder');
                         if (placeholder_text) {
