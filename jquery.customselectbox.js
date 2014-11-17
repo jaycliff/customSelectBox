@@ -27,20 +27,21 @@
     window.list_of_csb = list_of_csb;
     function createSelectBoxStructure($this) {
         var wrap = document.createElement('div'),
-            $wrap,
             csb_single,
-            $csb_single,
             csb_label,
-            $csb_label,
             csb_drop,
-            $csb_drop,
             csb_arrow,
             csb_option_list,
             optgroup,
+            $wrap,
+            $csb_single,
+            $csb_label,
+            $csb_drop,
             // children contains all options and optgroups of a given select element. used in generating the list items of the proxy
             children = [],
             list_pool,
             selected_item = null,
+            closeCSB,
             openCSB,
             index = 0;
         // update the list of option and optgroups (children)
@@ -65,7 +66,7 @@
             }
         }
         updateChildren();
-        function closeCSB(event) {
+        closeCSB = function (event) {
             if (event.which === 1) {
                 if (has_class_list) {
                     csb_single.parentNode.classList.remove('csb-with-drop');
@@ -76,7 +77,7 @@
                 }
                 $document.off('mousedown', closeCSB);
             }
-        }
+        };
         (function () {
             var event = $.Event('csb:close-proxy');
             event.which = 1;
