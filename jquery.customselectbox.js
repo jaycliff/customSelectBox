@@ -27,12 +27,11 @@
     window.list_of_csb = list_of_csb;
     function createSelectBoxStructure($this) {
         var wrap = document.createElement('div'),
-            csb_single,
-            csb_label,
-            csb_drop,
-            csb_arrow,
-            csb_option_list,
-            optgroup,
+            csb_single = document.createElement('div'),
+            csb_label = document.createElement('span'),
+            csb_drop = document.createElement('div'),
+            csb_arrow = document.createElement('span'),
+            csb_option_list = document.createElement('ul'),
             $wrap,
             $csb_single,
             $csb_label,
@@ -44,6 +43,36 @@
             closeCSB,
             openCSB,
             index = 0;
+        wrap.className = 'csb-container csb-container-single';
+        if ($this.prop('disabled')) {
+            if (has_class_list) {
+                wrap.classList.add('csb-disabled');
+            } else {
+                wrap.className += ' csb-disabled';
+            }
+        }
+        csb_single.className = 'csb-single';
+        csb_label.className = 'csb-label';
+        csb_single.appendChild(csb_label);
+        csb_arrow.className = 'csb-arrow';
+        csb_single.appendChild(csb_arrow);
+        wrap.appendChild(csb_single);
+        // bottom
+        csb_drop.className = 'csb-drop';
+        csb_option_list.className = 'csb-option-list';
+        placeholder_text = $this[0].getAttribute('data-placeholder');
+        if ($this[0].selectedIndex === -1) {
+            if (placeholder_text) {
+                csb_label.textContent = placeholder_text;
+            } else {
+                csb_label.textContent = default_placeholder_text;
+            }
+            if (has_class_list) {
+                csb_single.classList.add('csb-empty');
+            } else {
+                csb_single.className += ' csb-empty';
+            }
+        }
         // update the list of option and optgroups (children)
         function updateChildren() {
             var parent = $this[0], i, a, len1 = parent.children.length, len2, og;
@@ -66,38 +95,6 @@
             }
         }
         updateChildren();
-        closeCSB = function (event) {
-            if (event.which === 1) {
-                if (has_class_list) {
-                    csb_single.parentNode.classList.remove('csb-with-drop');
-                    csb_single.parentNode.classList.remove('csb-container-active');
-                } else {
-                    $csb_single.removeClass('csb-with-drop');
-                    $csb_single.removeClass('csb-container-active');
-                }
-                $document.off('mousedown', closeCSB);
-            }
-        };
-        (function () {
-            var event = $.Event('csb:close-proxy');
-            event.which = 1;
-            openCSB = function () {
-                var i, length = list_of_csb.length;
-                for (i = 0; i < length; i += 1) {
-                    list_of_csb[i].trigger(event);
-                }
-                if (has_class_list) {
-                    csb_single.parentNode.classList.add('csb-with-drop');
-                    csb_single.parentNode.classList.add('csb-container-active');
-                } else {
-                    $.data(csb_single.parentNode, '$this').addClass('csb-with-drop');
-                    $.data(csb_single.parentNode, '$this').addClass('csb-container-active');
-                }
-                $document.on('mousedown', closeCSB);
-            };
-        }());
-        $this.on('csb:close-proxy', closeCSB);
-        $this.on('csb:open-proxy', openCSB);
         // this is where the list elements get created/recycled
         list_pool = (function listPoolSetup() {
             var pool = [];
@@ -122,50 +119,50 @@
                             item = parent.removeChild(offspring[0]);
                             item.textContent = '';
                             item.removeAttribute('class');
-                            item.removeAttribute('data-csb-option-index');
+                            //item.removeAttribute('data-csb-option-index');
                             pool.push(item);
                         }
                     }
                 }
             };
         }());
-        wrap.className = 'csb-container csb-container-single';
-        if ($this.prop('disabled')) {
-            if (has_class_list) {
-                wrap.classList.add('csb-disabled');
-            } else {
-                wrap.className += ' csb-disabled';
+        (function () {
+            var event = $.Event('csb:close-proxy');
+            event.which = 1;
+            openCSB = function () {
+                var i, length = list_of_csb.length;
+                for (i = 0; i < length; i += 1) {
+                    list_of_csb[i].trigger(event);
+                }
+                if (has_class_list) {
+                    csb_single.parentNode.classList.add('csb-with-drop');
+                    csb_single.parentNode.classList.add('csb-container-active');
+                } else {
+                    $.data(csb_single.parentNode, '$this').addClass('csb-with-drop');
+                    $.data(csb_single.parentNode, '$this').addClass('csb-container-active');
+                }
+                $document.on('mousedown', closeCSB);
+            };
+        }());
+        closeCSB = function (event) {
+            if (event.which === 1) {
+                if (has_class_list) {
+                    csb_single.parentNode.classList.remove('csb-with-drop');
+                    csb_single.parentNode.classList.remove('csb-container-active');
+                } else {
+                    $csb_single.removeClass('csb-with-drop');
+                    $csb_single.removeClass('csb-container-active');
+                }
+                $document.off('mousedown', closeCSB);
             }
-        }
-        csb_single = document.createElement('div');
-        csb_single.className = 'csb-single';
-        csb_label = document.createElement('span');
-        csb_label.className = 'csb-label';
-        csb_single.appendChild(csb_label);
-        csb_arrow = document.createElement('span');
-        csb_arrow.className = 'csb-arrow';
-        csb_single.appendChild(csb_arrow);
-        wrap.appendChild(csb_single);
-        // bottom
-        csb_drop = document.createElement('div');
-        csb_drop.className = 'csb-drop';
-        csb_option_list = document.createElement('ul');
-        csb_option_list.className = 'csb-option-list';
-        placeholder_text = $this[0].getAttribute('data-placeholder');
-        if ($this[0].selectedIndex === -1) {
-            if (placeholder_text) {
-                csb_label.textContent = placeholder_text;
-            } else {
-                csb_label.textContent = default_placeholder_text;
-            }
-            if (has_class_list) {
-                csb_single.classList.add('csb-empty');
-            } else {
-                csb_single.className += ' csb-empty';
-            }
-        }
+        };
+        $this.on('csb:close-proxy', closeCSB);
+        $this.on('csb:open-proxy', openCSB);
         function createDropdownStructure() {
-            var i, length, li;
+            var i,
+                optgroup,
+                length,
+                li;
             for (i = 0, length = children.length; i < length; i += 1) {
                 li = list_pool.summon();
                 switch (children[i].tagName.toLowerCase()) {
