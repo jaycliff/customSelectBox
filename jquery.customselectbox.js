@@ -420,4 +420,4 @@
         }
     };
     $.fn.extend(extend_options);
-}(jQuery));
+}(window.jQuery || (window.module && window.module.exports)));
