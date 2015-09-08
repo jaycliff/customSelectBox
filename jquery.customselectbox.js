@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Jaycliff Arcilla of Eversun Software Philippines Corporation (Davao Branch)
+    Copyright 2015 Jaycliff Arcilla of Eversun Software Philippines Corporation (Davao Branch)
     
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -58,6 +58,26 @@
             }
         };
     }());
+    function updateChildrenList(parent, list_of_children) {
+        var i, a, len1 = parent.children.length, len2, og;
+        list_of_children.length = 0;
+        for (i = 0; i < len1; i += 1) {
+            switch (parent.children[i].tagName.toLowerCase()) {
+            case 'optgroup':
+                og = parent.children[i];
+                list_of_children.push(og);
+                for (a = 0, len2 = og.children.length; a < len2; a += 1) {
+                    if (og.children[a].tagName.toLowerCase() === 'option') {
+                        list_of_children.push(og.children[a]);
+                    }
+                }
+                break;
+            case 'option':
+                list_of_children.push(parent.children[i]);
+                break;
+            }
+        }
+    }
     function createSelectBoxStructure($this) {
         var wrap = document.createElement('div'),
             csb_single = document.createElement('div'),
@@ -69,8 +89,8 @@
             $csb_single,
             $csb_label,
             $csb_drop,
-            // children contains all options and optgroups of a given select element. used in generating the list items of the proxy
-            children = [],
+            // list_of_children contains all options and optgroups of a given select element. used in generating the list items of the proxy
+            list_of_children = [],
             selected_item = null,
             closeCSB,
             openCSB,
@@ -105,28 +125,8 @@
                 csb_single.className += ' csb-empty';
             }
         }
-        // update the list of option and optgroups (children)
-        function updateChildren() {
-            var parent = $this[0], i, a, len1 = parent.children.length, len2, og;
-            children.length = 0;
-            for (i = 0; i < len1; i += 1) {
-                switch (parent.children[i].tagName.toLowerCase()) {
-                case 'optgroup':
-                    og = parent.children[i];
-                    children.push(og);
-                    for (a = 0, len2 = og.children.length; a < len2; a += 1) {
-                        if (og.children[a].tagName.toLowerCase() === 'option') {
-                            children.push(og.children[a]);
-                        }
-                    }
-                    break;
-                case 'option':
-                    children.push(parent.children[i]);
-                    break;
-                }
-            }
-        }
-        updateChildren();
+        // update the list of option and optgroups (list_of_children)
+        updateChildrenList($this[0], list_of_children);
         (function () {
             var event = $.Event('csb:close-proxy');
             event.which = 1;
@@ -164,20 +164,20 @@
                 optgroup,
                 length,
                 li;
-            for (i = 0, length = children.length; i < length; i += 1) {
+            for (i = 0, length = list_of_children.length; i < length; i += 1) {
                 li = list_pool.summon();
-                switch (children[i].tagName.toLowerCase()) {
+                switch (list_of_children[i].tagName.toLowerCase()) {
                 case 'optgroup':
-                    optgroup = children[i];
+                    optgroup = list_of_children[i];
                     if (has_class_list) {
                         li.classList.add('group-result');
                     } else {
                         li.className = 'group-result';
                     }
-                    li.textContent = children[i].label;
+                    li.textContent = list_of_children[i].label;
                     break;
                 case 'option':
-                    if (!children[i].disabled) {
+                    if (!list_of_children[i].disabled) {
                         if (has_class_list) {
                             li.classList.add('active-result');
                         } else {
@@ -191,16 +191,16 @@
                         }
                     }
                     $.data(li, 'csb-option-index', index);
-                    if (optgroup && children[i].parentNode === optgroup) {
+                    if (optgroup && list_of_children[i].parentNode === optgroup) {
                         if (has_class_list) {
                             li.classList.add('group-option');
                         } else {
                             li.className += ' group-option';
                         }
                     }
-                    li.textContent = children[i].textContent;
+                    li.textContent = list_of_children[i].textContent;
                     //console.log($this[0].name);
-                    if (children[i].value === $this[0].value && index === $this[0].selectedIndex) {
+                    if (list_of_children[i].value === $this[0].value && index === $this[0].selectedIndex) {
                         if ($this[0].selectedIndex === 0) {
                             if (has_class_list) {
                                 csb_single.classList.add('csb-default');
@@ -215,7 +215,7 @@
                             li.className += ' csb-selected';
                         }
                         selected_item = li;
-                        if (children[i].disabled) {
+                        if (list_of_children[i].disabled) {
                             if (has_class_list) {
                                 //csb_single.classList.add('csb-default');
                                 li.classList.add('disabled-result');
@@ -236,7 +236,7 @@
         wrap.appendChild(csb_drop);
         $this.data('csb:refresh-proxy-structure', function () {
             list_pool.shave(csb_option_list);
-            updateChildren();
+            updateChildrenList($this[0], list_of_children);
             if (has_class_list) {
                 csb_single.classList.remove('csb-default');
             } else {
