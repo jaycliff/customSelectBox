@@ -1,5 +1,5 @@
 /*
-    Copyright 2015 Jaycliff Arcilla of Eversun Software Philippines Corporation (Davao Branch)
+    Copyright 2014 Jaycliff Arcilla of Eversun Software Philippines Corporation (Davao Branch)
     
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -414,13 +414,8 @@
         }
     }
     extend_options = {
-        customSelectBox: function customSelectBox(options) {
-            if (!options) {
-                // Now is the perfect time to remove the eacher's "options" property
-                if (Object.prototype.hasOwnProperty.call(eacher, 'options')) {
-                    delete eacher.options;
-                }
-            } else {
+        customSelectBox: function (options) {
+            if (typeof options === "object") {
                 eacher.options = options;
             }
             this.each(eacher);
