@@ -1,5 +1,5 @@
 /*
-    Copyright 2014 Jaycliff Arcilla of Eversun Software Philippines Corporation (Davao Branch)
+    Copyright 2015 Jaycliff Arcilla of Eversun Software Philippines Corporation (Davao Branch)
     
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
         has_class_list = !!document.documentElement.classList,
         list_of_csb = [],
         extend_options,
+        eacher_default_options = { 'min-width': '50px' },
         placeholder_text = '',
         default_placeholder_text = 'Select an item';
     window.list_of_csb = list_of_csb;
@@ -329,8 +330,15 @@
     }
     function eacher() {
         var $this, options, key;
+        /*jshint validthis: true */
         if (this.tagName.toLowerCase() === 'select') {
-            options = eacher.options || eacher.default_options;
+            if (eacher.hasOwnProperty('options') && typeof eacher.options === "object") {
+                options = eacher.options;
+                delete eacher.options;
+            } else {
+                options = eacher_default_options;
+            }
+            //options = (eacher.hasOwnProperty('options') && typeof eacher.options === "object") ? eacher.options : eacher_default_options;
             if (!$.data(this, 'csb-$this')) {
                 $this = $(this);
                 list_of_csb.push($this);
@@ -405,10 +413,10 @@
             //console.log('Plugin is not ready');
         }
     }
-    eacher.default_options = { 'min-width': '50px' };
     extend_options = {
         customSelectBox: function customSelectBox(options) {
             if (!options) {
+                // Now is the perfect time to remove the eacher's "options" property
                 if (Object.prototype.hasOwnProperty.call(eacher, 'options')) {
                     delete eacher.options;
                 }
@@ -420,4 +428,4 @@
         }
     };
     $.fn.extend(extend_options);
-}(window.jQuery || (window.module && window.module.exports)));
+}(window, (typeof jQuery === "function" && jQuery) || (typeof module === "object" && typeof module.exports === "function" && module.exports)));
