@@ -15,17 +15,49 @@
 */
 /*jslint browser: true, devel: true */
 /*global jQuery*/
-(function ($) {
+(function (window, $) {
     "use strict";
     // $.fn === $.prototype
     var $document = $(document),
         has_class_list = !!document.documentElement.classList,
         list_of_csb = [],
+        list_pool,
         extend_options,
         eacher_default_options = { 'min-width': '50px' },
         placeholder_text = '',
         default_placeholder_text = 'Select an item';
     window.list_of_csb = list_of_csb;
+    // this is where the list elements get created/recycled
+    list_pool = (function listPoolSetup() {
+        var pool = [];
+        return {
+            'summon': function summon() {
+                var list;
+                if (pool.length > 0) {
+                    list = pool.pop();
+                } else {
+                    list = document.createElement('li');
+                    if (!has_class_list) {
+                        $.data(list, '$this', $(list));
+                    }
+                }
+                return list;
+            },
+            'shave': function shave(parent) {
+                var offspring, item;
+                if (parent.children.length > 0) {
+                    offspring = parent.children;
+                    while (offspring.length) {
+                        item = parent.removeChild(offspring[0]);
+                        item.textContent = '';
+                        item.removeAttribute('class');
+                        //item.removeAttribute('data-csb-option-index');
+                        pool.push(item);
+                    }
+                }
+            }
+        };
+    }());
     function createSelectBoxStructure($this) {
         var wrap = document.createElement('div'),
             csb_single = document.createElement('div'),
@@ -39,7 +71,6 @@
             $csb_drop,
             // children contains all options and optgroups of a given select element. used in generating the list items of the proxy
             children = [],
-            list_pool,
             selected_item = null,
             closeCSB,
             openCSB,
@@ -96,37 +127,6 @@
             }
         }
         updateChildren();
-        // this is where the list elements get created/recycled
-        list_pool = (function listPoolSetup() {
-            var pool = [];
-            return {
-                'summon': function summon() {
-                    var list;
-                    if (pool.length > 0) {
-                        list = pool.pop();
-                    } else {
-                        list = document.createElement('li');
-                        if (!has_class_list) {
-                            $.data(list, '$this', $(list));
-                        }
-                    }
-                    return list;
-                },
-                'shave': function shave(parent) {
-                    var offspring, item;
-                    if (parent.children.length > 0) {
-                        offspring = parent.children;
-                        while (offspring.length) {
-                            item = parent.removeChild(offspring[0]);
-                            item.textContent = '';
-                            item.removeAttribute('class');
-                            //item.removeAttribute('data-csb-option-index');
-                            pool.push(item);
-                        }
-                    }
-                }
-            };
-        }());
         (function () {
             var event = $.Event('csb:close-proxy');
             event.which = 1;
@@ -245,7 +245,6 @@
             index = 0;
             createDropdownStructure();
         });
-        $this.data('list-pool', list_pool);
         $this.after(wrap);
         $wrap = $(wrap);
         $this.data('csb-$wrap', $wrap);
