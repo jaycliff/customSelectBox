@@ -318,8 +318,8 @@
                 } else {
                     this.className += ' csb-selected';
                 }
-                $this.prop('selectedIndex', option_index).trigger('change');
                 csb_label.textContent = this.textContent;
+                $this.prop('selectedIndex', option_index).trigger('change');
                 //console.log(option_index);
                 closeCSB(event);
             }
