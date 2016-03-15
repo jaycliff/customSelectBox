@@ -142,11 +142,11 @@
                     $.data(csb_single.parentNode, '$this').addClass('csb-with-drop');
                     $.data(csb_single.parentNode, '$this').addClass('csb-container-active');
                 }
-                $document.on('mousedown', closeCSB);
+                $document.on('mousedown custom:touchdown', closeCSB);
             };
         }());
         closeCSB = function (event) {
-            if (event.which === 1) {
+            if (event.which === 1 || event.type === 'custom:touchdown') {
                 if (has_class_list) {
                     csb_single.parentNode.classList.remove('csb-with-drop');
                     csb_single.parentNode.classList.remove('csb-container-active');
@@ -154,7 +154,7 @@
                     $csb_single.removeClass('csb-with-drop');
                     $csb_single.removeClass('csb-container-active');
                 }
-                $document.off('mousedown', closeCSB);
+                $document.off('mousedown custom:touchdown', closeCSB);
             }
         };
         $this.on('csb:close-proxy', closeCSB);
@@ -250,8 +250,8 @@
         $this.data('csb-$wrap', $wrap);
         $csb_single = $(csb_single);
         $this.data('csb-$csb_single', $csb_single);
-        $csb_single.on('mousedown', function (event) {
-            if (event.which === 1) {
+        $csb_single.on('mousedown custom:touchdown', function (event) {
+            if (event.which === 1 || event.type === 'custom:touchdown') {
                 event.stopPropagation();
                 if ($this[0].disabled) {
                     return;
@@ -274,7 +274,7 @@
         $csb_label = $(csb_label);
         $this.data('csb-$csb_label', $csb_label);
         $csb_drop = $(csb_drop);
-        $csb_drop.on('mousedown', function (event) {
+        $csb_drop.on('mousedown custom:touchdown', function (event) {
             event.stopPropagation();
         });
         // Start $this-a-thon
@@ -283,9 +283,9 @@
         $.data(csb_label, '$this', $csb_label);
         $.data(csb_drop, '$this', $csb_drop);
         // End $this-a-thon
-        $csb_drop.on('mousedown', 'li.active-result', function (event) {
+        $csb_drop.on('mousedown custom:touchdown', 'li.active-result', function (event) {
             var option_index;
-            if (event.which === 1) {
+            if (event.which === 1 || event.type === 'custom:touchdown') {
                 option_index = $.data(this, 'csb-option-index');
                 if (has_class_list) {
                     csb_single.classList.remove('csb-empty');
