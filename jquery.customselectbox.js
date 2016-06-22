@@ -14,7 +14,7 @@
     limitations under the License.
 */
 /*jslint browser: true, devel: true */
-/*global jQuery*/
+/*global jQuery, module*/
 (function (window, $) {
     "use strict";
     // $.fn === $.prototype
@@ -89,12 +89,19 @@
             $csb_single,
             $csb_label,
             $csb_drop,
+            current_index = $this.prop('selectedIndex'),
             // list_of_children contains all options and optgroups of a given select element. used in generating the list items of the proxy
             list_of_children = [],
             selected_item = null,
             closeCSB,
-            openCSB,
-            index = 0;
+            openCSB;
+        $this.on('change', function (event) {
+            current_index = this.selectedIndex;
+            // If event is manually-triggered...
+            if (!event.originalEvent) {
+                $this.trigger('csb:update-proxy');
+            }
+        });
         wrap.className = 'csb-container csb-container-single';
         if ($this.prop('disabled')) {
             if (has_class_list) {
@@ -163,6 +170,7 @@
             var i,
                 optgroup,
                 length,
+                index = 0,
                 li;
             for (i = 0, length = list_of_children.length; i < length; i += 1) {
                 li = list_pool.summon();
@@ -242,7 +250,7 @@
             } else {
                 $csb_single.removeClass('csb-default');
             }
-            index = 0;
+            current_index = $this[0].selectedIndex;
             createDropdownStructure();
         });
         $this.after(wrap);
@@ -283,43 +291,46 @@
         $.data(csb_label, '$this', $csb_label);
         $.data(csb_drop, '$this', $csb_drop);
         // End $this-a-thon
-        $csb_drop.on('mousedown custom:touchdown', 'li.active-result', function (event) {
+        $csb_drop.on('mousedown custom:touchdown touchstart', 'li.active-result', function (event) {
             var option_index;
-            if (event.which === 1 || event.type === 'custom:touchdown') {
+            event.preventDefault();
+            if (event.which === 1 || event.type === 'custom:touchdown' || event.type === 'touchstart') {
                 option_index = $.data(this, 'csb-option-index');
-                if (has_class_list) {
-                    csb_single.classList.remove('csb-empty');
-                } else {
-                    $csb_single.removeClass('csb-empty');
-                }
-                if (option_index > 0) {
+                if (current_index !== option_index) {
                     if (has_class_list) {
-                        csb_single.classList.remove('csb-default');
+                        csb_single.classList.remove('csb-empty');
                     } else {
-                        $csb_single.removeClass('csb-default');
+                        $csb_single.removeClass('csb-empty');
                     }
-                } else {
+                    if (option_index > 0) {
+                        if (has_class_list) {
+                            csb_single.classList.remove('csb-default');
+                        } else {
+                            $csb_single.removeClass('csb-default');
+                        }
+                    } else {
+                        if (has_class_list) {
+                            csb_single.classList.add('csb-default');
+                        } else {
+                            $csb_single.addClass('csb-default');
+                        }
+                    }
+                    if (selected_item) {
+                        if (has_class_list) {
+                            selected_item.classList.remove('csb-selected');
+                        } else {
+                            $.data(selected_item, '$this').removeClass('csb-selected');
+                        }
+                    }
+                    selected_item = this;
                     if (has_class_list) {
-                        csb_single.classList.add('csb-default');
+                        this.classList.add('csb-selected');
                     } else {
-                        $csb_single.addClass('csb-default');
+                        this.className += ' csb-selected';
                     }
+                    csb_label.textContent = this.textContent;
+                    $this.prop('selectedIndex', option_index).trigger('change');
                 }
-                if (selected_item) {
-                    if (has_class_list) {
-                        selected_item.classList.remove('csb-selected');
-                    } else {
-                        $.data(selected_item, '$this').removeClass('csb-selected');
-                    }
-                }
-                selected_item = this;
-                if (has_class_list) {
-                    this.classList.add('csb-selected');
-                } else {
-                    this.className += ' csb-selected';
-                }
-                csb_label.textContent = this.textContent;
-                $this.prop('selectedIndex', option_index).trigger('change');
                 //console.log(option_index);
                 closeCSB(event);
             }
