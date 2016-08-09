@@ -96,9 +96,11 @@
 }
 
 .csb-container .csb-drop {
+    display: none;
     position: absolute;
     width: 100%;
-    left: -999999em;
+    /* left: -999999em; */
+    left: 0;
     box-sizing: border-box;
     border: solid 1px #c0c0c0;
     border-top: none;
@@ -108,8 +110,9 @@
 }
 
 .csb-container-active .csb-drop {
-    left: 0;
     background-color: #ffffff;
+    display: block;
+    /* left: 0; */
 }
 
 .csb-container .csb-drop ul {
