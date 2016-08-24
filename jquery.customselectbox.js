@@ -1,12 +1,12 @@
 /*
-    Copyright 2015 Jaycliff Arcilla of Eversun Software Philippines Corporation (Davao Branch)
-    
+    Copyright 2016 Jaycliff Arcilla of Eversun Software Philippines Corporation (Davao Branch)
+
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-    
+
         http://www.apache.org/licenses/LICENSE-2.0
-    
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@
     "use strict";
     // $.fn === $.prototype
     var $document = $(document),
+        $body,
         has_class_list = !!document.documentElement.classList,
         list_of_csb = [],
         list_pool,
@@ -26,6 +27,10 @@
         eacher_default_options = { 'min-width': '50px' },
         placeholder_text = '',
         default_placeholder_text = 'Select an item';
+    $document.ready(function () {
+        $body = $('body');
+    });
+    window.$body = $body; // Debug
     window.list_of_csb = list_of_csb;
     // this is where the list elements get created/recycled
     list_pool = (function listPoolSetup() {
@@ -79,12 +84,14 @@
         }
     }
     function createSelectBoxStructure($this) {
-        var wrap = document.createElement('div'),
-            csb_single = document.createElement('div'),
+        var wrap = document.createElement('span'),
+            csb_single = document.createElement('span'),
             csb_label = document.createElement('span'),
-            csb_drop = document.createElement('div'),
+            csb_drop = document.createElement('span'),
             csb_arrow = document.createElement('span'),
+            csb_ol_wrap = document.createElement('span'),
             csb_option_list = document.createElement('ul'),
+            raf_id,
             $wrap,
             $csb_single,
             $csb_label,
@@ -102,7 +109,7 @@
                 $this.trigger('csb:update-proxy');
             }
         });
-        wrap.className = 'csb-container csb-container-single';
+        wrap.className = 'csb-container csb-container-single csb-mc';
         if ($this.prop('disabled')) {
             if (has_class_list) {
                 wrap.classList.add('csb-disabled');
@@ -117,7 +124,8 @@
         csb_single.appendChild(csb_arrow);
         wrap.appendChild(csb_single);
         // bottom
-        csb_drop.className = 'csb-drop';
+        csb_drop.className = 'csb-drop csb-mc';
+        csb_ol_wrap.className = 'csb-ol-wrap';
         csb_option_list.className = 'csb-option-list';
         placeholder_text = $this[0].getAttribute('data-placeholder');
         if ($this[0].selectedIndex === -1) {
@@ -137,6 +145,13 @@
         (function () {
             var event = $.Event('csb:close-proxy');
             event.which = 1;
+            function rafCallback() {
+                $csb_drop
+                    .css('width', $wrap.outerWidth())
+                    .css('top', $wrap.getY() + $wrap.outerHeight())
+                    .css('left', $wrap.getX());
+                raf_id = requestAnimationFrame(rafCallback);
+            }
             openCSB = function () {
                 var i, length = list_of_csb.length;
                 for (i = 0; i < length; i += 1) {
@@ -149,6 +164,9 @@
                     $.data(csb_single.parentNode, '$this').addClass('csb-with-drop');
                     $.data(csb_single.parentNode, '$this').addClass('csb-container-active');
                 }
+                $csb_drop.show();
+                wrap.scrollIntoView();
+                raf_id = requestAnimationFrame(rafCallback);
                 $document.on('mousedown custom:touchdown', closeCSB);
             };
         }());
@@ -161,6 +179,8 @@
                     $csb_single.removeClass('csb-with-drop');
                     $csb_single.removeClass('csb-container-active');
                 }
+                cancelAnimationFrame(raf_id);
+                $csb_drop.hide();
                 $document.off('mousedown custom:touchdown', closeCSB);
             }
         };
@@ -240,8 +260,10 @@
             }
         }
         createDropdownStructure();
-        csb_drop.appendChild(csb_option_list);
-        wrap.appendChild(csb_drop);
+        csb_drop.appendChild(csb_ol_wrap);
+        csb_ol_wrap.appendChild(csb_option_list);
+        //wrap.appendChild(csb_drop);
+        $body.append(csb_drop);
         $this.data('csb:refresh-proxy-structure', function () {
             list_pool.shave(csb_option_list);
             updateChildrenList($this[0], list_of_children);
@@ -281,7 +303,7 @@
         });
         $csb_label = $(csb_label);
         $this.data('csb-$csb_label', $csb_label);
-        $csb_drop = $(csb_drop);
+        $csb_drop = $(csb_drop).hide();
         $csb_drop.on('mousedown custom:touchdown', function (event) {
             event.stopPropagation();
         });

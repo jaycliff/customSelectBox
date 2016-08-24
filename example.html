@@ -5,7 +5,17 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Custom Select Box</title>
         <link rel="stylesheet" type="text/css" href="jquery.customselectbox.css" />
+        <style type="text/css">
+            #wrap {
+                border: solid 1px #c0c0c0;
+                height: 64px;
+                margin: 0 auto;
+                overflow: auto;
+                width: 640px;
+            }
+        </style>
         <script type="text/javascript" src="jquery-1.11.1.min.js"></script>
+        <script type="text/javascript" src="jquery.domxy.js"></script>
         <script type="text/javascript" src="jquery.customselectbox.js"></script>
         <script type="text/javascript">
             /*jslint browser: true, devel: true */
@@ -29,7 +39,7 @@
                     return document.createTextNode(string);
                 }
                 $document.ready(function () {
-                    var $select = $('select');
+                    var $select = $('select[name*="select"]');
                     $select.customSelectBox({ width: '150px' });
                     $select.on('change', function () {
                         console.log('changed to: ' + this.value);
@@ -42,50 +52,95 @@
         </script>
     </head>
     <body>
-        <select name="selection" data-placeholder="Nothing to see here">
-            <option value="Jaycliff">Jaycliff</option>
-            <option value="Arcilla">Arcilla</option>
-            <optgroup label="This is a simulated optgroup">
-                <option value="is">is</option>
-                <option value="so" disabled="disabled">so</option>
-            </optgroup>
-            <option value="freaking">feaking</option>
-            <option value="awesome">awesome</option>
-            <optgroup label="Pokemon">
-                <option value="Hey">Hey</option>
-                <option value="You" disabled="disabled">You</option>
-                <option value="Pikachu!">Pikachu!</option>
-            </optgroup>
-        </select>
-        <select name="selectioner" data-placeholder="Nothing to see here">
-            <optgroup label="Power Rangers">
-                <option value="Red Ranger">Red Ranger</option>
-                <option value="Blue Ranger">Blue Ranger</option>
-                <option value="Black Ranger">Black Ranger</option>
-                <option value="Yellow Ranger">Yellow Ranger</option>
-                <option value="Pink Ranger">Pink Ranger</option>
-            </optgroup>
-            <option value="idiot">idiot</option>
-            <option value="crazy">crazy</option>
-            <optgroup label="Random">
-                <option value="Kung">Kung</option>
-                <option value="Fu">Fu</option>
-            </optgroup>
-            <option value="feeling pogi">feeling pogi</option>
-            <option value="imbecile">imbecile</option>
-        </select>
-        <select name="selectionist" data-placeholder="Nothing to see here">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-        </select>
+        <div id="wrap">
+            <select name="selection" data-placeholder="Nothing to see here">
+                <option value="Jaycliff">Jaycliff</option>
+                <option value="Arcilla">Arcilla</option>
+                <optgroup label="This is a simulated optgroup">
+                    <option value="is">is</option>
+                    <option value="so" disabled="disabled">so</option>
+                </optgroup>
+                <option value="freaking">feaking</option>
+                <option value="awesome">awesome</option>
+                <optgroup label="Pokemon">
+                    <option value="Hey">Hey</option>
+                    <option value="You" disabled="disabled">You</option>
+                    <option value="Pikachu!">Pikachu!</option>
+                </optgroup>
+            </select>
+            <select name="selectioner" data-placeholder="Nothing to see here">
+                <optgroup label="Power Rangers">
+                    <option value="Red Ranger">Red Ranger</option>
+                    <option value="Blue Ranger">Blue Ranger</option>
+                    <option value="Black Ranger">Black Ranger</option>
+                    <option value="Yellow Ranger">Yellow Ranger</option>
+                    <option value="Pink Ranger">Pink Ranger</option>
+                </optgroup>
+                <option value="idiot">idiot</option>
+                <option value="crazy">crazy</option>
+                <optgroup label="Random">
+                    <option value="Kung">Kung</option>
+                    <option value="Fu">Fu</option>
+                </optgroup>
+                <option value="feeling pogi">feeling pogi</option>
+                <option value="imbecile">imbecile</option>
+            </select>
+            <select name="selectionist" data-placeholder="Nothing to see here">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+            </select>
+            <select>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+            </select>
+        </div>
         <!-- Template by Jaycliff Arcilla -->
+        <!--
+        <div style="width: 320px; height: 240px; overflow: auto;" id="box">
+            What<br />
+            the<br />
+            hell<br />
+            is<br />
+            that<br />
+            shit<br />
+            you<br />
+            limey<br />
+            fuck<br />
+            What<br />
+            the<br />
+            hell<br />
+            is<br />
+            that<br />
+            shit<br />
+            you<br />
+            limey<br />
+            fuck<br />
+        </div>
+        <script type="text/javascript">
+            $('#box').on('scroll', function (event) {
+                console.log(event);
+                console.log('BOX: They see me scrolling, they hating...');
+            });
+            $(window).on('scroll', function (event) {
+                console.log('WINDOW: They see me scrolling, they hating...');
+            });
+        </script>
+        -->
     </body>
 </html>

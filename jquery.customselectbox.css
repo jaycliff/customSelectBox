@@ -2,14 +2,18 @@
     min-width: 50px;
     position: relative;
     display: inline-block;
-    font-size: 12px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+}
+
+.csb-container,
+body .csb-drop {
     font-family: Arial;
+    font-size: 12px;
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
     -o-user-select: none;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
 }
 
 .csb-disabled {
@@ -29,6 +33,7 @@
     background: -o-linear-gradient(top, #fff 20%, #f6f6f6 50%, #eee 52%, #f4f4f4 100%);
     background: linear-gradient(top, #fff 20%, #f6f6f6 50%, #eee 52%, #f4f4f4 100%);
     background-clip: padding-box;
+    display: block;
 }
 
 .csb-disabled .csb-single {
@@ -36,6 +41,7 @@
 }
 
 .csb-container-active .csb-single {
+    background-color: #ffffff;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     background-image: -webkit-gradient(linear, 50% 0, 50% 100%, color-stop(20%,#eee), color-stop(80%,#fff));
@@ -95,8 +101,10 @@
     border-bottom-color: #a0a0a0;
 }
 
+body .csb-drop,
 .csb-container .csb-drop {
-    display: none;
+    background-color: #ffffff;
+    display: block;
     position: absolute;
     width: 100%;
     /* left: -999999em; */
@@ -107,24 +115,28 @@
     margin-top: -1px;
     border-radius: 0 0 2px 2px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    z-index: 999;
 }
 
-.csb-container-active .csb-drop {
+/* .csb-container-active .csb-drop {
     background-color: #ffffff;
     display: block;
-    /* left: 0; */
-}
+} */
 
-.csb-container .csb-drop ul {
-    padding: 0;
-    margin: 0;
+body .csb-drop .csb-ol-wrap {
+    display: block;
     max-height: 144px;
-    list-style: none;
     overflow-x: hidden;
     overflow-y: auto;
 }
 
-.csb-container .csb-drop ul li {
+body .csb-drop ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+body .csb-drop ul li {
     height: 18px;
     line-height: 18px;
     white-space: nowrap;
@@ -132,27 +144,27 @@
     cursor: default;
 }
 
-.csb-container .csb-drop ul li.group-result {
+body .csb-drop ul li.group-result {
     font-style: italic;
     font-weight: 800;
 }
 
-.csb-container .csb-drop ul li.active-result {
+body .csb-drop ul li.active-result {
     cursor: pointer;
 }
 
-.csb-container .csb-drop ul li.disabled-result {
+body .csb-drop ul li.disabled-result {
     color: rgba(0, 0, 0, 0.5);
 }
 
-.csb-container .csb-drop ul li.active-result:hover, .csb-container .csb-drop ul li.csb-selected {
+body .csb-drop ul li.active-result:hover, body .csb-drop ul li.csb-selected {
     background-color: #f0f0f0;
 }
 
-.csb-container .csb-drop ul li.csb-selected {
+body .csb-drop ul li.csb-selected {
     background-color: pink !important;
 }
 
-.csb-container .csb-drop ul li.group-option {
+body .csb-drop ul li.group-option {
     padding-left: 15px;
 }
