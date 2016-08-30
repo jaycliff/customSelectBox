@@ -31,7 +31,7 @@
         $body = $('body');
     });
     window.$body = $body; // Debug
-    window.list_of_csb = list_of_csb;
+    window.list_of_csb = list_of_csb; // Debug
     // this is where the list elements get created/recycled
     list_pool = (function listPoolSetup() {
         var pool = [];
@@ -102,6 +102,7 @@
             selected_item = null,
             closeCSB,
             openCSB;
+        $this.data('csb::open', false);
         $this.on('change', function (event) {
             current_index = this.selectedIndex;
             // If event is manually-triggered...
@@ -153,9 +154,14 @@
                 raf_id = requestAnimationFrame(rafCallback);
             }
             openCSB = function () {
-                var i, length = list_of_csb.length;
+                var i, length = list_of_csb.length, $item;
+                //console.log('open');
+                $this.data('csb::open', true);
                 for (i = 0; i < length; i += 1) {
-                    list_of_csb[i].trigger(event);
+                    $item = list_of_csb[i];
+                    if ($item !== $this && $item.data('csb::open')) {
+                        $item.trigger(event); // Close any open dropdown
+                    }
                 }
                 if (has_class_list) {
                     csb_single.parentNode.classList.add('csb-with-drop');
@@ -165,13 +171,18 @@
                     $.data(csb_single.parentNode, '$this').addClass('csb-container-active');
                 }
                 $csb_drop.show();
-                wrap.scrollIntoView();
+                //wrap.scrollIntoView();
+                if (typeof wrap.scrollIntoViewIfNeeded === "function") {
+                    wrap.scrollIntoViewIfNeeded();
+                }
                 raf_id = requestAnimationFrame(rafCallback);
                 $document.on('mousedown custom:touchdown', closeCSB);
             };
         }());
         closeCSB = function (event) {
-            if (event.which === 1 || event.type === 'custom:touchdown') {
+            //console.log(event);
+            if (!event.originalEvent || event.which === 1 || event.type === 'custom:touchdown') {
+                $this.data('csb::open', false);
                 if (has_class_list) {
                     csb_single.parentNode.classList.remove('csb-with-drop');
                     csb_single.parentNode.classList.remove('csb-container-active');
@@ -181,6 +192,7 @@
                 }
                 cancelAnimationFrame(raf_id);
                 $csb_drop.hide();
+                //console.log('closed');
                 $document.off('mousedown custom:touchdown', closeCSB);
             }
         };
