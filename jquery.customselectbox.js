@@ -390,14 +390,7 @@
                 $.data(this, 'csb-proxy', createSelectBoxStructure($this));
                 for (key in options) {
                     if (Object.prototype.hasOwnProperty.call(options, key)) {
-                        switch (key) {
-                        case 'width':
-                            $this.data('csb-$wrap').css('width', options[key]);
-                            break;
-                        case 'min-width':
-                            $this.data('csb-$wrap').css('min-width', options[key]);
-                            break;
-                        }
+                        $this.data('csb-$wrap').css(key, options[key]);
                     }
                 }
                 $this.on('csb:update-proxy', function () {
