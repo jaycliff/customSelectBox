@@ -24,6 +24,7 @@
 		trigger_param_list = [],
         list_of_csb = [],
         list_pool,
+		index = 0,
         extend_options,
         eacher_default_options = { 'min-width': '50px' },
         placeholder_text = '',
@@ -113,7 +114,8 @@
             selected_item = null,
             closeCSB,
             openCSB;
-        $this.data('csb:open', false).attr('data-csb', 'true').addClass('csb-enabled');
+        $this.data('csb:open', false).attr('data-csb', 'true').addClass('csb-enabled').attr('data-csb-id', index);
+		index += 1;
         $this.on('change', function (event) {
             current_index = this.selectedIndex;
             // If event is manually-triggered...
