@@ -21,12 +21,19 @@
     var $document = $(document),
         $body,
         has_class_list = !!document.documentElement.classList,
+		trigger_param_list = [],
         list_of_csb = [],
         list_pool,
         extend_options,
         eacher_default_options = { 'min-width': '50px' },
         placeholder_text = '',
         default_placeholder_text = 'Select an item';
+	if (typeof Object.freeze !== "function") {
+		Object.freeze = function freeze(obj) {
+			console.log('NOTE: This host does not have this feature [Object.freeze]');
+			return obj;
+		};
+	}
     $document.ready(function () {
         $body = $('body');
     });
@@ -93,11 +100,13 @@
             csb_arrow = document.createElement('span'),
             csb_ol_wrap = document.createElement('span'),
             csb_option_list = document.createElement('ul'),
+			parts,
             raf_id,
             $wrap,
             $csb_single,
             $csb_label,
             $csb_drop,
+			$csb_ol_wrap,
             current_index = $this.prop('selectedIndex'),
             // list_of_children contains all options and optgroups of a given select element. used in generating the list items of the proxy
             list_of_children = [],
@@ -153,6 +162,9 @@
                     .css('width', $wrap.outerWidth())
                     .css('top', $wrap.getY() + $wrap.outerHeight())
                     .css('left', $wrap.getX());
+				trigger_param_list.push(parts);
+				$this.trigger('csb:dropdownrefresh', trigger_param_list);
+				trigger_param_list.length = 0;
                 raf_id = requestAnimationFrame(rafCallback);
             }
             openCSB = function () {
@@ -179,6 +191,9 @@
                 }
                 raf_id = requestAnimationFrame(rafCallback);
                 $document.on('mousedown custom:touchdown', closeCSB);
+				trigger_param_list.push(parts);
+				$this.trigger('csb:open', trigger_param_list);
+				trigger_param_list.length = 0;
             };
         }());
         closeCSB = function (event) {
@@ -196,6 +211,9 @@
                 $csb_drop.hide();
                 //console.log('closed');
                 $document.off('mousedown custom:touchdown', closeCSB);
+				trigger_param_list.push(parts);
+				$this.trigger('csb:close', trigger_param_list);
+				trigger_param_list.length = 0;
             }
         };
         $this.on('csb:close-proxy', closeCSB);
@@ -321,6 +339,7 @@
         $csb_label = $(csb_label);
         $this.data('csb::$csb_label', $csb_label);
         $csb_drop = $(csb_drop).hide();
+		$csb_ol_wrap = $(csb_ol_wrap);
         $this.data('csb::$csb_drop', $csb_drop);
         $csb_drop.on('mousedown custom:touchdown', function (event) {
             event.stopPropagation();
@@ -375,6 +394,16 @@
                 closeCSB(event);
             }
         });
+		parts = Object.freeze({
+			'select': $this,
+			'wrap': $wrap,
+			'single': $csb_single,
+			'label': $csb_label,
+			'arrow': $(csb_arrow),
+			'drop': $csb_drop,
+			'ol-wrap': $csb_ol_wrap,
+			'option-list': $(csb_option_list)
+		});
         // return the newly created elements
         return wrap;
     }

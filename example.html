@@ -43,7 +43,12 @@
                     $select.customSelectBox({ width: '150px' });
                     $select.on('change', function () {
                         console.log('changed to: ' + this.value);
-                    });
+                    }).on('csb:open', function (event, parts) {
+						console.log(event);
+						console.log(parts);
+					}).on('csb:dropdownrefresh', function (event, parts) {
+						console.log('refresh');
+					});
                     $document.on('keydown', function (event) {
                         event.preventDefault();
                     });
