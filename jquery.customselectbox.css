@@ -111,11 +111,18 @@ body .csb-drop,
     left: 0;
     box-sizing: border-box;
     border: solid 1px #c0c0c0;
-    border-top: none;
-    margin-top: -1px;
+	border-bottom-width: 0;
+    margin-bottom: -1px;
     border-radius: 0 0 2px 2px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     z-index: 999;
+}
+
+body .csb-drop.regular,
+.csb-container .csb-drop.regular {
+    border-top-width: 0;
+	border-bottom-width: 1px;
+    margin-top: -1px;
 }
 
 /* .csb-container-active .csb-drop {

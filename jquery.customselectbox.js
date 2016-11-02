@@ -139,7 +139,7 @@
         csb_single.appendChild(csb_arrow);
         wrap.appendChild(csb_single);
         // bottom
-        csb_drop.className = 'csb-drop csb-mc';
+        csb_drop.className = 'csb-drop csb-mc regular';
         csb_ol_wrap.className = 'csb-ol-wrap';
         csb_option_list.className = 'csb-option-list';
         placeholder_text = $this[0].getAttribute('data-placeholder');
@@ -158,36 +158,55 @@
         // update the list of option and optgroups (list_of_children)
         updateChildrenList($this[0], list_of_children);
         (function openCloseSetup() {
-            var event = $.Event('csb:close-proxy'), initial_height, timer_id, prev_body_overflow;
+            var event = $.Event('csb:close-proxy'), initial_total_height, initial_dropdown_height, reverse_drop = false, timer_id, prev_body_overflow;
             event.which = 1;
             function rafCallback() {
                 $csb_drop
                     .css('width', $wrap.outerWidth())
-                    .css('top', $wrap.getY() + $wrap.outerHeight())
                     .css('left', $wrap.getX());
+				if (reverse_drop) {
+					$csb_drop.css('bottom', $window.height() - $wrap.getY());
+				} else {
+					$csb_drop.css('top', $wrap.getY() + $wrap.outerHeight());
+				}
 				trigger_param_list.push(parts);
 				$this.trigger('csb:dropdownrefresh', trigger_param_list);
 				trigger_param_list.length = 0;
                 raf_id = requestAnimationFrame(rafCallback);
             }
             function resizeHandler() {
-                //console.log('INITIAL HEIGHT: ' + initial_height);
+                //console.log('INITIAL HEIGHT: ' + initial_total_height);
                 //console.log('CSB OL HEIGHT: ' + $csb_ol_wrap.outerHeight());
                 //console.log('WINDOW HEIGHT: ' + $window.height());
-                if ($window.height() <= initial_height) {
-                    $csb_drop.css('bottom', 0);
-                    csb_ol_wrap.style.maxHeight = '100%';
+                if ($window.height() < initial_total_height) {
+					console.log('WINDOW HEIGHT: ' + $window.height() + ', INITIAL DROPDOWN HEIGHT: ' + initial_dropdown_height);
+					csb_drop.style.top = '';
+					if ($wrap.getY() >= initial_dropdown_height) {
+						console.log('Can fit above');
+						reverse_drop = true;
+						$csb_drop.removeClass('regular');
+						csb_ol_wrap.style.maxHeight = '';
+					} else {
+						$csb_drop.css('bottom', 0);
+						csb_ol_wrap.style.maxHeight = '100%';
+						reverse_drop = false;
+					}
                     //console.log('BOOM');
                 } else {
+					$csb_drop.addClass('regular');
                     csb_drop.style.bottom = '';
                     csb_ol_wrap.style.maxHeight = '';
+					reverse_drop = false;
                 }
             }
             function initialize() {
-                initial_height = $csb_ol_wrap.outerHeight() + csb_drop.getBoundingClientRect().top + parseInt($csb_drop.css('border-bottom-width'), 10) + parseInt($csb_drop.css('border-top-width'), 10);
-                //initial_height = $csb_drop.outerHeight() + csb_drop.getBoundingClientRect().top;
+				initial_dropdown_height = $csb_ol_wrap.outerHeight() + parseInt($csb_drop.css('border-bottom-width'), 10) + parseInt($csb_drop.css('border-top-width'), 10);
+				//initial_dropdown_height = $csb_drop.outerHeight();
+                initial_total_height = initial_dropdown_height + csb_drop.getBoundingClientRect().top;
+                //initial_total_height = $csb_drop.outerHeight() + csb_drop.getBoundingClientRect().top;
                 resizeHandler();
                 $window.on('resize', resizeHandler);
+				$csb_drop.css('left', $wrap.getX());
                 $body[0].style.overflow = prev_body_overflow;
                 $csb_drop[0].style.opacity = '';
 				trigger_param_list.push(parts);
@@ -211,10 +230,11 @@
                     $.data(csb_single.parentNode, '$this').addClass('csb-with-drop');
                     $.data(csb_single.parentNode, '$this').addClass('csb-container-active');
                 }
+				reverse_drop = false;
                 prev_body_overflow = $body[0].style.overflow;
                 $body.css('overflow', 'hidden');
                 $csb_drop.css('opacity', 0).show();
-                timer_id = setTimeout(initialize, 16);
+                timer_id = setTimeout(initialize, 10);
                 //wrap.scrollIntoView();
                 if (typeof wrap.scrollIntoViewIfNeeded === "function") {
                     wrap.scrollIntoViewIfNeeded();
