@@ -21,6 +21,7 @@
     var $document = $(document),
         $window = $(window),
         $body,
+        floor = Math.floor,
         has_class_list = !!document.documentElement.classList,
 		trigger_param_list = [],
         list_of_csb = [],
@@ -103,7 +104,6 @@
             csb_ol_wrap = document.createElement('span'),
             csb_option_list = document.createElement('ul'),
 			parts,
-            raf_id,
             $wrap,
             $csb_single,
             $csb_label,
@@ -158,26 +158,47 @@
         // update the list of option and optgroups (list_of_children)
         updateChildrenList($this[0], list_of_children);
         (function openCloseSetup() {
-            var event = $.Event('csb:close-proxy'), initial_total_height, initial_dropdown_height, reverse_drop = false, timer_id, prev_body_overflow;
+            var event = $.Event('csb:close-proxy'),
+                initial_total_height,
+                initial_dropdown_height,
+                reverse_drop = false,
+                timer_id,
+                raf_id,
+                ro_id,
+                overflow_set = false,
+                prev_body_overflow;
             event.which = 1;
             function rafCallback() {
                 $csb_drop
                     .css('width', $wrap.outerWidth())
                     .css('left', $wrap.getX());
 				if (reverse_drop) {
-					$csb_drop.css('bottom', $window.height() - $wrap.getY());
+					$csb_drop.css('bottom', floor($window.height() - $wrap.getY()));
 				} else {
-					$csb_drop.css('top', $wrap.getY() + $wrap.outerHeight());
+					$csb_drop.css('top', floor($wrap.getY() + $wrap.outerHeight()));
 				}
 				trigger_param_list.push(parts);
 				$this.trigger('csb:dropdownrefresh', trigger_param_list);
 				trigger_param_list.length = 0;
                 raf_id = requestAnimationFrame(rafCallback);
             }
-            function resizeHandler() {
+            function restoreOverflow() {
+                $body[0].style.overflow = prev_body_overflow;
+                overflow_set = false;
+            }
+            function resizeHandler(event) {
                 //console.log('INITIAL HEIGHT: ' + initial_total_height);
                 //console.log('CSB OL HEIGHT: ' + $csb_ol_wrap.outerHeight());
                 //console.log('WINDOW HEIGHT: ' + $window.height());
+                if (event) {
+                    if (!overflow_set) {
+                        clearTimeout(ro_id);
+                        prev_body_overflow = $body[0].style.overflow;
+                        $body.css('overflow', 'hidden');
+                        ro_id = setTimeout(restoreOverflow, 10);
+                        overflow_set = true;
+                    }
+                }
                 if ($window.height() < initial_total_height) {
 					console.log('WINDOW HEIGHT: ' + $window.height() + ', INITIAL DROPDOWN HEIGHT: ' + initial_dropdown_height);
 					csb_drop.style.top = '';
