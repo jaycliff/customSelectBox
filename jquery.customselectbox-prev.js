@@ -19,7 +19,6 @@
     "use strict";
     // $.fn === $.prototype
     var $document = $(document),
-        $window = $(window),
         $body,
         has_class_list = !!document.documentElement.classList,
 		trigger_param_list = [],
@@ -157,8 +156,8 @@
         }
         // update the list of option and optgroups (list_of_children)
         updateChildrenList($this[0], list_of_children);
-        (function openCloseSetup() {
-            var event = $.Event('csb:close-proxy'), initial_height, timer_id, prev_body_overflow;
+        (function () {
+            var event = $.Event('csb:close-proxy');
             event.which = 1;
             function rafCallback() {
                 $csb_drop
@@ -169,30 +168,6 @@
 				$this.trigger('csb:dropdownrefresh', trigger_param_list);
 				trigger_param_list.length = 0;
                 raf_id = requestAnimationFrame(rafCallback);
-            }
-            function resizeHandler() {
-                //console.log('INITIAL HEIGHT: ' + initial_height);
-                //console.log('CSB OL HEIGHT: ' + $csb_ol_wrap.outerHeight());
-                //console.log('WINDOW HEIGHT: ' + $window.height());
-                if ($window.height() <= initial_height) {
-                    $csb_drop.css('bottom', 0);
-                    csb_ol_wrap.style.maxHeight = '100%';
-                    //console.log('BOOM');
-                } else {
-                    csb_drop.style.bottom = '';
-                    csb_ol_wrap.style.maxHeight = '';
-                }
-            }
-            function initialize() {
-                initial_height = $csb_ol_wrap.outerHeight() + csb_drop.getBoundingClientRect().top + parseInt($csb_drop.css('border-bottom-width'), 10) + parseInt($csb_drop.css('border-top-width'), 10);
-                //initial_height = $csb_drop.outerHeight() + csb_drop.getBoundingClientRect().top;
-                resizeHandler();
-                $window.on('resize', resizeHandler);
-                $body[0].style.overflow = prev_body_overflow;
-                $csb_drop[0].style.opacity = '';
-				trigger_param_list.push(parts);
-				$this.trigger('csb:open', trigger_param_list);
-				trigger_param_list.length = 0;
             }
             openCSB = function () {
                 var i, length = list_of_csb.length, $item;
@@ -211,42 +186,38 @@
                     $.data(csb_single.parentNode, '$this').addClass('csb-with-drop');
                     $.data(csb_single.parentNode, '$this').addClass('csb-container-active');
                 }
-                prev_body_overflow = $body[0].style.overflow;
-                $body.css('overflow', 'hidden');
-                $csb_drop.css('opacity', 0).show();
-                timer_id = setTimeout(initialize, 16);
+                $csb_drop.show();
                 //wrap.scrollIntoView();
                 if (typeof wrap.scrollIntoViewIfNeeded === "function") {
                     wrap.scrollIntoViewIfNeeded();
                 }
                 raf_id = requestAnimationFrame(rafCallback);
                 $document.on('mousedown custom:touchdown', closeCSB);
-            };
-            closeCSB = function (event) {
-                //console.log(event);
-                if (!event.originalEvent || event.which === 1 || event.type === 'custom:touchdown') {
-                    clearTimeout(timer_id);
-                    $this.data('csb:open', false);
-                    if (has_class_list) {
-                        csb_single.parentNode.classList.remove('csb-with-drop');
-                        csb_single.parentNode.classList.remove('csb-container-active');
-                    } else {
-                        $csb_single.removeClass('csb-with-drop');
-                        $csb_single.removeClass('csb-container-active');
-                    }
-                    cancelAnimationFrame(raf_id);
-                    $csb_drop.hide();
-                    //console.log('closed');
-                    $document.off('mousedown custom:touchdown', closeCSB);
-                    csb_drop.style.bottom = '';
-                    csb_ol_wrap.style.maxHeight = '';
-                    $window.off('resize', resizeHandler);
-                    trigger_param_list.push(parts);
-                    $this.trigger('csb:close', trigger_param_list);
-                    trigger_param_list.length = 0;
-                }
+				trigger_param_list.push(parts);
+				$this.trigger('csb:open', trigger_param_list);
+				trigger_param_list.length = 0;
             };
         }());
+        closeCSB = function (event) {
+            //console.log(event);
+            if (!event.originalEvent || event.which === 1 || event.type === 'custom:touchdown') {
+                $this.data('csb:open', false);
+                if (has_class_list) {
+                    csb_single.parentNode.classList.remove('csb-with-drop');
+                    csb_single.parentNode.classList.remove('csb-container-active');
+                } else {
+                    $csb_single.removeClass('csb-with-drop');
+                    $csb_single.removeClass('csb-container-active');
+                }
+                cancelAnimationFrame(raf_id);
+                $csb_drop.hide();
+                //console.log('closed');
+                $document.off('mousedown custom:touchdown', closeCSB);
+				trigger_param_list.push(parts);
+				$this.trigger('csb:close', trigger_param_list);
+				trigger_param_list.length = 0;
+            }
+        };
         $this.on('csb:close-proxy', closeCSB);
         $this.on('csb:open-proxy', openCSB);
         function createDropdownStructure() {
