@@ -113,13 +113,14 @@ body .csb-drop,
     border: solid 1px #c0c0c0;
 	border-bottom-width: 0;
     margin-bottom: -1px;
-    border-radius: 0 0 2px 2px;
+    border-radius: 2px 2px 0 0;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     z-index: 999;
 }
 
 body .csb-drop.regular,
 .csb-container .csb-drop.regular {
+    border-radius: 0 0 2px 2px;
     border-top-width: 0;
 	border-bottom-width: 1px;
     margin-bottom: 0;
