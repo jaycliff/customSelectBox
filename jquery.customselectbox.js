@@ -20,6 +20,7 @@
     // $.fn === $.prototype
     var $document = $(document),
         $window = $(window),
+		$html,
         $body,
         floor = Math.floor,
         has_class_list = !!document.documentElement.classList,
@@ -38,6 +39,7 @@
 		};
 	}
     $document.ready(function () {
+		$html = $('html');
         $body = $('body');
     });
     window.$body = $body; // Debug
@@ -162,10 +164,9 @@
                 initial_total_height,
                 initial_dropdown_height,
                 reverse_drop = false,
+				is_hidden = false,
                 timer_id,
                 raf_id,
-                ro_id,
-                overflow_set = false,
                 prev_body_overflow;
             event.which = 1;
             function rafCallback() {
@@ -173,63 +174,69 @@
                     .css('width', $wrap.outerWidth())
                     .css('left', $wrap.getX());
 				if (reverse_drop) {
-					$csb_drop.css('bottom', floor($window.height() - $wrap.getY()));
+					$csb_drop.css('bottom', $window.height() - $wrap.getY());
 				} else {
-					$csb_drop.css('top', floor($wrap.getY() + $wrap.outerHeight()));
+					$csb_drop.css('top', $wrap.getY() + $wrap.outerHeight());
+				}
+				if (is_hidden) {
+					$csb_drop[0].style.visibility = '';
+					is_hidden = false;
 				}
 				trigger_param_list.push(parts);
 				$this.trigger('csb:dropdownrefresh', trigger_param_list);
 				trigger_param_list.length = 0;
                 raf_id = requestAnimationFrame(rafCallback);
             }
-            function restoreOverflow() {
-                $body[0].style.overflow = prev_body_overflow;
-                overflow_set = false;
-            }
             function resizeHandler(event) {
+				if (!reverse_drop) {
+					initial_total_height = initial_dropdown_height + ($wrap.outerHeight() + $wrap.getY()) + parseInt($csb_drop.css('margin-top'), 10);
+				} else {
+					$csb_drop.css('visibility', 'hidden');
+					is_hidden = true;
+				}
                 //console.log('INITIAL HEIGHT: ' + initial_total_height);
                 //console.log('CSB OL HEIGHT: ' + $csb_ol_wrap.outerHeight());
                 //console.log('WINDOW HEIGHT: ' + $window.height());
-                if (event) {
-                    if (!overflow_set) {
-                        clearTimeout(ro_id);
-                        prev_body_overflow = $body[0].style.overflow;
-                        $body.css('overflow', 'hidden');
-                        ro_id = setTimeout(restoreOverflow, 10);
-                        overflow_set = true;
-                    }
-                }
+                if (!event) {
+					raf_id = requestAnimationFrame(rafCallback);
+                } else {
+					$csb_drop.css('visibility', 'hidden').css('width', $wrap.outerWidth()).css('left', -$csb_drop.outerWidth()).css('top', -$csb_drop.outerHeight());
+					is_hidden = true;
+				}
                 if ($window.height() < initial_total_height) {
-					console.log('WINDOW HEIGHT: ' + $window.height() + ', INITIAL DROPDOWN HEIGHT: ' + initial_dropdown_height);
+					console.log('WINDOW HEIGHT: ' + $window.height() + ', INITIAL DROPDOWN HEIGHT: ' + initial_dropdown_height + ', INITIAL TOTAL HEIGHT: ' + initial_total_height);
 					csb_drop.style.top = '';
-					if ($wrap.getY() >= initial_dropdown_height) {
-						console.log('Can fit above');
-						reverse_drop = true;
-						$csb_drop.removeClass('regular');
+					if ($wrap.getY() >= initial_dropdown_height + parseInt($csb_drop.css('margin-top'), 10)) {
+						if (!reverse_drop) {
+							$csb_drop.removeClass('regular');
+							reverse_drop = true;
+						}
 						csb_ol_wrap.style.maxHeight = '';
+						console.log('drop above');
 					} else {
 						$csb_drop.css('bottom', 0);
 						csb_ol_wrap.style.maxHeight = '100%';
-						reverse_drop = false;
+						if (reverse_drop) {
+							$csb_drop.addClass('regular');
+							reverse_drop = false;
+						}
+						console.log('seminormal');
 					}
                     //console.log('BOOM');
                 } else {
-					$csb_drop.addClass('regular');
                     csb_drop.style.bottom = '';
                     csb_ol_wrap.style.maxHeight = '';
-					reverse_drop = false;
+					if (reverse_drop) {
+						$csb_drop.addClass('regular');
+						reverse_drop = false;
+					}
+					console.log('normal');
                 }
             }
             function initialize() {
-				initial_dropdown_height = $csb_ol_wrap.outerHeight() + parseInt($csb_drop.css('border-bottom-width'), 10) + parseInt($csb_drop.css('border-top-width'), 10);
-				//initial_dropdown_height = $csb_drop.outerHeight();
-                initial_total_height = initial_dropdown_height + csb_drop.getBoundingClientRect().top;
-                //initial_total_height = $csb_drop.outerHeight() + csb_drop.getBoundingClientRect().top;
-                resizeHandler();
+				initial_dropdown_height = $csb_drop.outerHeight();
+                setTimeout(resizeHandler, 0);
                 $window.on('resize', resizeHandler);
-				$csb_drop.css('left', $wrap.getX());
-                $body[0].style.overflow = prev_body_overflow;
-                $csb_drop[0].style.opacity = '';
 				trigger_param_list.push(parts);
 				$this.trigger('csb:open', trigger_param_list);
 				trigger_param_list.length = 0;
@@ -251,16 +258,18 @@
                     $.data(csb_single.parentNode, '$this').addClass('csb-with-drop');
                     $.data(csb_single.parentNode, '$this').addClass('csb-container-active');
                 }
-				reverse_drop = false;
-                prev_body_overflow = $body[0].style.overflow;
-                $body.css('overflow', 'hidden');
-                $csb_drop.css('opacity', 0).show();
+				if (reverse_drop) {
+					$csb_drop.addClass('regular');
+					reverse_drop = false;
+				}
+                //$csb_drop.css('opacity', 0).show().css('top', -$csb_drop.outerHeight()).css('left', -$csb_drop.outerWidth());
+                $csb_drop.css('visibility', 'hidden').show().css('width', $wrap.outerWidth()).css('left', -$csb_drop.outerWidth()).css('top', -$csb_drop.outerHeight());
+				is_hidden = true;
                 timer_id = setTimeout(initialize, 10);
                 //wrap.scrollIntoView();
                 if (typeof wrap.scrollIntoViewIfNeeded === "function") {
                     wrap.scrollIntoViewIfNeeded();
                 }
-                raf_id = requestAnimationFrame(rafCallback);
                 $document.on('mousedown custom:touchdown', closeCSB);
             };
             closeCSB = function (event) {
