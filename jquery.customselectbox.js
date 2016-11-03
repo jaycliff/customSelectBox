@@ -174,6 +174,7 @@
                     .css('width', $wrap.outerWidth())
                     .css('left', $wrap.getX());
 				if (reverse_drop) {
+                    csb_drop.style.top = '';
 					$csb_drop.css('bottom', $window.height() - $wrap.getY());
 				} else {
 					$csb_drop.css('top', $wrap.getY() + $wrap.outerHeight());
@@ -205,18 +206,18 @@
 				}
                 if ($window.height() < initial_total_height) {
 					console.log('WINDOW HEIGHT: ' + $window.height() + ', INITIAL DROPDOWN HEIGHT: ' + initial_dropdown_height + ', INITIAL TOTAL HEIGHT: ' + initial_total_height);
-					csb_drop.style.top = '';
 					if ($wrap.getY() >= initial_dropdown_height + parseInt($csb_drop.css('margin-top'), 10)) {
+                        //csb_drop.style.top = '';
 						if (!reverse_drop) {
+                            csb_ol_wrap.style.maxHeight = '';
 							$csb_drop.removeClass('regular');
 							reverse_drop = true;
 						}
-						csb_ol_wrap.style.maxHeight = '';
 						console.log('drop above');
 					} else {
-						$csb_drop.css('bottom', 0);
-						csb_ol_wrap.style.maxHeight = '100%';
 						if (reverse_drop) {
+                            $csb_drop.css('bottom', 0);
+                            csb_ol_wrap.style.maxHeight = '100%';
 							$csb_drop.addClass('regular');
 							reverse_drop = false;
 						}
@@ -232,14 +233,7 @@
 					}
 					console.log('normal');
                 }
-            }
-            function initialize() {
-				initial_dropdown_height = $csb_drop.outerHeight();
-                setTimeout(resizeHandler, 0);
-                $window.on('resize', resizeHandler);
-				trigger_param_list.push(parts);
-				$this.trigger('csb:open', trigger_param_list);
-				trigger_param_list.length = 0;
+                console.log($csb_drop.css('top'));
             }
             openCSB = function () {
                 var i, length = list_of_csb.length, $item;
@@ -263,14 +257,20 @@
 					reverse_drop = false;
 				}
                 //$csb_drop.css('opacity', 0).show().css('top', -$csb_drop.outerHeight()).css('left', -$csb_drop.outerWidth());
-                $csb_drop.css('visibility', 'hidden').show().css('width', $wrap.outerWidth()).css('left', -$csb_drop.outerWidth()).css('top', -$csb_drop.outerHeight());
+                $csb_drop.css('visibility', 'hidden').show();
 				is_hidden = true;
-                timer_id = setTimeout(initialize, 10);
+				initial_dropdown_height = $csb_drop.outerHeight();
+                $csb_drop.css('width', $wrap.outerWidth()).css('top', -initial_dropdown_height).css('left', -$csb_drop.outerWidth());
+                setTimeout(resizeHandler, 0);
+                $window.on('resize', resizeHandler);
                 //wrap.scrollIntoView();
                 if (typeof wrap.scrollIntoViewIfNeeded === "function") {
                     wrap.scrollIntoViewIfNeeded();
                 }
                 $document.on('mousedown custom:touchdown', closeCSB);
+				trigger_param_list.push(parts);
+				$this.trigger('csb:open', trigger_param_list);
+				trigger_param_list.length = 0;
             };
             closeCSB = function (event) {
                 //console.log(event);
