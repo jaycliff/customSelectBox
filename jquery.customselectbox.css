@@ -51,6 +51,13 @@ body .csb-drop {
     background-image: linear-gradient(#eee 20%, #fff 80%);
 }
 
+.csb-container-active.csb-reverse .csb-single {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
 .csb-container .csb-label {
     display: block;
     min-height: 20px;

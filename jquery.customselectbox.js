@@ -211,6 +211,7 @@
 						if (!reverse_drop) {
                             csb_ol_wrap.style.maxHeight = '';
 							$csb_drop.removeClass('regular');
+							$wrap.addClass('csb-reverse');
 							reverse_drop = true;
 						}
 						console.log('drop above');
@@ -219,6 +220,7 @@
                             $csb_drop.css('bottom', 0);
                             csb_ol_wrap.style.maxHeight = '100%';
 							$csb_drop.addClass('regular');
+							$wrap.removeClass('csb-reverse');
 							reverse_drop = false;
 						}
 						console.log('seminormal');
@@ -229,6 +231,7 @@
                     csb_ol_wrap.style.maxHeight = '';
 					if (reverse_drop) {
 						$csb_drop.addClass('regular');
+						$wrap.removeClass('csb-reverse');
 						reverse_drop = false;
 					}
 					console.log('normal');
@@ -254,6 +257,7 @@
                 }
 				if (reverse_drop) {
 					$csb_drop.addClass('regular');
+					$wrap.removeClass('csb-reverse');
 					reverse_drop = false;
 				}
                 //$csb_drop.css('opacity', 0).show().css('top', -$csb_drop.outerHeight()).css('left', -$csb_drop.outerWidth());
