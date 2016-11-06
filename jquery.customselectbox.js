@@ -217,12 +217,12 @@
 						console.log('drop above');
 					} else {
 						if (reverse_drop) {
-                            $csb_drop.css('bottom', 0);
-                            csb_ol_wrap.style.maxHeight = '100%';
 							$csb_drop.addClass('regular');
 							$wrap.removeClass('csb-reverse');
 							reverse_drop = false;
 						}
+                        $csb_drop.css('bottom', 0);
+                        csb_ol_wrap.style.maxHeight = '100%';
 						console.log('seminormal');
 					}
                     //console.log('BOOM');
