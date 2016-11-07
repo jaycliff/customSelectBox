@@ -189,15 +189,11 @@
                 raf_id = requestAnimationFrame(rafCallback);
             }
             function resizeHandler(event) {
-				if (!reverse_drop) {
-					initial_total_height = initial_dropdown_height + ($wrap.outerHeight() + $wrap.getY()) + parseInt($csb_drop.css('margin-top'), 10);
-				} else {
+				initial_total_height = initial_dropdown_height + ($wrap.outerHeight() + $wrap.getY()) + parseInt($csb_drop.css('margin-top'), 10);
+				if (reverse_drop) {
 					$csb_drop.css('visibility', 'hidden');
 					is_hidden = true;
 				}
-                //console.log('INITIAL HEIGHT: ' + initial_total_height);
-                //console.log('CSB OL HEIGHT: ' + $csb_ol_wrap.outerHeight());
-                //console.log('WINDOW HEIGHT: ' + $window.height());
                 if (!event) {
 					raf_id = requestAnimationFrame(rafCallback);
                 } else {
@@ -206,7 +202,7 @@
 				}
                 if ($window.height() < initial_total_height) {
 					console.log('WINDOW HEIGHT: ' + $window.height() + ', INITIAL DROPDOWN HEIGHT: ' + initial_dropdown_height + ', INITIAL TOTAL HEIGHT: ' + initial_total_height);
-					if ($wrap.getY() >= initial_dropdown_height + parseInt($csb_drop.css('margin-top'), 10)) {
+					if ($wrap.getY() - ((reverse_drop) ? parseInt($csb_drop.css('margin-bottom'), 10) : parseInt($csb_drop.css('margin-top'), 10)) >= initial_dropdown_height) {
                         //csb_drop.style.top = '';
 						if (!reverse_drop) {
                             csb_ol_wrap.style.maxHeight = '';
@@ -264,6 +260,7 @@
                 $csb_drop.css('visibility', 'hidden').show();
 				is_hidden = true;
 				initial_dropdown_height = $csb_drop.outerHeight();
+				// Set the dropdown to upper left to avoid overflow scrollbars on body
                 $csb_drop.css('width', $wrap.outerWidth()).css('top', -initial_dropdown_height).css('left', -$csb_drop.outerWidth());
                 setTimeout(resizeHandler, 0);
                 $window.on('resize', resizeHandler);
