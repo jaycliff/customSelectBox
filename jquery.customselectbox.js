@@ -164,6 +164,7 @@
                 initial_dropdown_height,
                 reverse_drop = false,
 				is_hidden = false,
+                reset_top = false, // Helps avoid overflow problems when resetting the top value
                 timer_id,
                 raf_id,
                 prev_body_overflow;
@@ -173,6 +174,10 @@
                     .css('width', $wrap.outerWidth())
                     .css('left', $wrap.getX());
 				if (reverse_drop) {
+                    if (reset_top) {
+						csb_drop.style.top = '';
+                        reset_top = false;
+                    }
 					$csb_drop.css('bottom', $window.height() - $wrap.getY());
 					if ($wrap.getY() - parseInt($csb_drop.css('margin-bottom'), 10) < $csb_drop.outerHeight()) {
 						setTimeout(resizeHandler, 0);
@@ -206,11 +211,12 @@
 				$csb_drop.css('visibility', 'hidden').css('width', $wrap.outerWidth()).css('left', -$csb_drop.outerWidth()).css('top', -$csb_drop.outerHeight());
 				is_hidden = true;
                 if (window_height < initial_normal_total_height) {
-					console.log('WINDOW HEIGHT: ' + window_height + ', INITIAL DROPDOWN HEIGHT: ' + initial_dropdown_height + ', INITIAL TOTAL HEIGHT: ' + initial_normal_total_height);
-					top_height = wrap_y - ((reverse_drop) ? parseInt($csb_drop.css('margin-bottom'), 10) : parseInt($csb_drop.css('margin-top'), 10));
+					//console.log('WINDOW HEIGHT: ' + window_height + ', INITIAL DROPDOWN HEIGHT: ' + initial_dropdown_height + ', INITIAL TOTAL HEIGHT: ' + initial_normal_total_height);
+					//console.log('TOP: ' + $csb_drop.css('top') + ', LEFT: ' + $csb_drop.css('left'));
+                    top_height = wrap_y - ((reverse_drop) ? parseInt($csb_drop.css('margin-bottom'), 10) : parseInt($csb_drop.css('margin-top'), 10));
 					if (top_height >= initial_dropdown_height) {
                         //csb_drop.style.top = '';
-						csb_drop.style.top = '';
+                        reset_top = true;
                         csb_ol_wrap.style.maxHeight = '';
 						if (!reverse_drop) {
 							$csb_drop.removeClass('regular');
@@ -275,8 +281,8 @@
 					reverse_drop = false;
 				}
                 //$csb_drop.css('opacity', 0).show().css('top', -$csb_drop.outerHeight()).css('left', -$csb_drop.outerWidth());
-				initial_dropdown_height = $csb_drop.outerHeight();
 				$csb_drop.show();
+				initial_dropdown_height = $csb_drop.outerHeight();
                 $window.on('resize', resizeHandler);
                 resizeHandler();
 				raf_id = requestAnimationFrame(rafCallback);
