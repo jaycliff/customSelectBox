@@ -161,7 +161,6 @@
         updateChildrenList($this[0], list_of_children);
         (function openCloseSetup() {
             var event = $.Event('csb:close-proxy'),
-                initial_total_height,
                 initial_dropdown_height,
                 reverse_drop = false,
 				is_hidden = false,
@@ -174,10 +173,15 @@
                     .css('width', $wrap.outerWidth())
                     .css('left', $wrap.getX());
 				if (reverse_drop) {
-                    csb_drop.style.top = '';
 					$csb_drop.css('bottom', $window.height() - $wrap.getY());
+					if ($wrap.getY() - parseInt($csb_drop.css('margin-bottom'), 10) < $csb_drop.outerHeight()) {
+						setTimeout(resizeHandler, 0);
+					}
 				} else {
 					$csb_drop.css('top', $wrap.getY() + $wrap.outerHeight());
+					if ($window.height() < $csb_drop.outerHeight() + ($wrap.outerHeight() + $wrap.getY()) + parseInt($csb_drop.css('margin-top'), 10)) {
+						setTimeout(resizeHandler, 0);
+					}
 				}
 				if (is_hidden) {
 					$csb_drop[0].style.visibility = '';
@@ -188,38 +192,52 @@
 				trigger_param_list.length = 0;
                 raf_id = requestAnimationFrame(rafCallback);
             }
-            function resizeHandler(event) {
-				initial_total_height = initial_dropdown_height + ($wrap.outerHeight() + $wrap.getY()) + parseInt($csb_drop.css('margin-top'), 10);
+            function resizeHandler() {
+				var window_height = $window.height(),
+					wrap_y = $wrap.getY(),
+					normal_dropdown_target_y = ($wrap.outerHeight() + wrap_y) + parseInt($csb_drop.css('margin-top'), 10),
+					initial_normal_total_height = initial_dropdown_height + normal_dropdown_target_y,
+					top_height;
 				if (reverse_drop) {
 					$csb_drop.css('visibility', 'hidden');
 					is_hidden = true;
 				}
-                if (!event) {
-					raf_id = requestAnimationFrame(rafCallback);
-                } else {
-					$csb_drop.css('visibility', 'hidden').css('width', $wrap.outerWidth()).css('left', -$csb_drop.outerWidth()).css('top', -$csb_drop.outerHeight());
-					is_hidden = true;
-				}
-                if ($window.height() < initial_total_height) {
-					console.log('WINDOW HEIGHT: ' + $window.height() + ', INITIAL DROPDOWN HEIGHT: ' + initial_dropdown_height + ', INITIAL TOTAL HEIGHT: ' + initial_total_height);
-					if ($wrap.getY() - ((reverse_drop) ? parseInt($csb_drop.css('margin-bottom'), 10) : parseInt($csb_drop.css('margin-top'), 10)) >= initial_dropdown_height) {
+				// Set the dropdown to upper left to avoid overflow scrollbars on body
+				$csb_drop.css('visibility', 'hidden').css('width', $wrap.outerWidth()).css('left', -$csb_drop.outerWidth()).css('top', -$csb_drop.outerHeight());
+				is_hidden = true;
+                if (window_height < initial_normal_total_height) {
+					console.log('WINDOW HEIGHT: ' + window_height + ', INITIAL DROPDOWN HEIGHT: ' + initial_dropdown_height + ', INITIAL TOTAL HEIGHT: ' + initial_normal_total_height);
+					top_height = wrap_y - ((reverse_drop) ? parseInt($csb_drop.css('margin-bottom'), 10) : parseInt($csb_drop.css('margin-top'), 10));
+					if (top_height >= initial_dropdown_height) {
                         //csb_drop.style.top = '';
+						csb_drop.style.top = '';
+                        csb_ol_wrap.style.maxHeight = '';
 						if (!reverse_drop) {
-                            csb_ol_wrap.style.maxHeight = '';
 							$csb_drop.removeClass('regular');
 							$wrap.addClass('csb-reverse');
 							reverse_drop = true;
 						}
 						console.log('drop above');
 					} else {
-						if (reverse_drop) {
-							$csb_drop.addClass('regular');
-							$wrap.removeClass('csb-reverse');
-							reverse_drop = false;
+						if (top_height > window_height - normal_dropdown_target_y) {
+							if (!reverse_drop) {
+								$csb_drop.removeClass('regular');
+								$wrap.addClass('csb-reverse');
+								reverse_drop = true;
+							}
+							$csb_drop.css('top', 0);
+							csb_ol_wrap.style.maxHeight = '100%';
+							console.log('top sticky');
+						} else {
+							if (reverse_drop) {
+								$csb_drop.addClass('regular');
+								$wrap.removeClass('csb-reverse');
+								reverse_drop = false;
+							}
+							$csb_drop.css('bottom', 0);
+							csb_ol_wrap.style.maxHeight = '100%';
+							console.log('bottom sticky');
 						}
-                        $csb_drop.css('bottom', 0);
-                        csb_ol_wrap.style.maxHeight = '100%';
-						console.log('seminormal');
 					}
                     //console.log('BOOM');
                 } else {
@@ -257,13 +275,11 @@
 					reverse_drop = false;
 				}
                 //$csb_drop.css('opacity', 0).show().css('top', -$csb_drop.outerHeight()).css('left', -$csb_drop.outerWidth());
-                $csb_drop.css('visibility', 'hidden').show();
-				is_hidden = true;
 				initial_dropdown_height = $csb_drop.outerHeight();
-				// Set the dropdown to upper left to avoid overflow scrollbars on body
-                $csb_drop.css('width', $wrap.outerWidth()).css('top', -initial_dropdown_height).css('left', -$csb_drop.outerWidth());
-                setTimeout(resizeHandler, 0);
+				$csb_drop.show();
                 $window.on('resize', resizeHandler);
+                resizeHandler();
+				raf_id = requestAnimationFrame(rafCallback);
                 //wrap.scrollIntoView();
                 if (typeof wrap.scrollIntoViewIfNeeded === "function") {
                     wrap.scrollIntoViewIfNeeded();
