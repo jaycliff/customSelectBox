@@ -170,6 +170,7 @@
                 prev_body_overflow;
             event.which = 1;
             function rafCallback() {
+				var wrap_y = $wrap.getY();
                 $csb_drop
                     .css('width', $wrap.outerWidth())
                     .css('left', $wrap.getX());
@@ -178,13 +179,13 @@
 						csb_drop.style.top = '';
                         reset_top = false;
                     }
-					$csb_drop.css('bottom', $window.height() - $wrap.getY());
-					if ($wrap.getY() - parseInt($csb_drop.css('margin-bottom'), 10) < $csb_drop.outerHeight()) {
+					$csb_drop.css('bottom', $window.height() - wrap_y);
+					if (wrap_y - parseInt($csb_drop.css('margin-bottom'), 10) < $csb_drop.outerHeight()) {
 						setTimeout(resizeHandler, 0);
 					}
 				} else {
-					$csb_drop.css('top', $wrap.getY() + $wrap.outerHeight());
-					if ($window.height() < $csb_drop.outerHeight() + ($wrap.outerHeight() + $wrap.getY()) + parseInt($csb_drop.css('margin-top'), 10)) {
+					$csb_drop.css('top', wrap_y + $wrap.outerHeight());
+					if ($window.height() < $csb_drop.outerHeight() + ($wrap.outerHeight() + wrap_y) + parseInt($csb_drop.css('margin-top'), 10)) {
 						setTimeout(resizeHandler, 0);
 					}
 				}
