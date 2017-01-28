@@ -291,7 +291,7 @@
                 if (typeof wrap.scrollIntoViewIfNeeded === "function") {
                     wrap.scrollIntoViewIfNeeded();
                 }
-                $document.on('mousedown touchstart custom:touchdown', closeCSB);
+                $document.on('mousedown touchstart', closeCSB);
 				trigger_param_list.push(parts);
 				$this.trigger('csb:open', trigger_param_list);
 				trigger_param_list.length = 0;
@@ -310,7 +310,7 @@
                 cancelAnimationFrame(raf_id);
                 $csb_drop.hide();
                 //console.log('closed');
-                $document.off('mousedown touchstart custom:touchdown', closeCSB);
+                $document.off('mousedown touchstart', closeCSB);
                 csb_drop.style.bottom = '';
                 csb_ol_wrap.style.maxHeight = '';
                 $window.off('resize', resizeHandler);
@@ -418,8 +418,8 @@
         $this.data('csb::$wrap', $wrap);
         $csb_single = $(csb_single);
         $this.data('csb::$csb_single', $csb_single);
-        $csb_single.on('mousedown custom:touchdown', function (event) {
-            if (event.which === 1 || event.type === 'custom:touchdown') {
+        $csb_single.on('mousedown', function (event) {
+            if (event.which === 1) {
                 event.stopPropagation();
                 if ($this[0].disabled) {
                     return;
@@ -445,7 +445,7 @@
         $csb_drop = $(csb_drop).hide();
 		$csb_ol_wrap = $(csb_ol_wrap);
         $this.data('csb::$csb_drop', $csb_drop);
-        $csb_drop.on('mousedown custom:touchdown', function (event) {
+        $csb_drop.on('mousedown', function (event) {
             event.stopPropagation();
         });
         // Start $this-a-thon
@@ -454,10 +454,10 @@
         $.data(csb_label, '$this', $csb_label);
         $.data(csb_drop, '$this', $csb_drop);
         // End $this-a-thon
-        $csb_drop.on('mousedown custom:touchdown touchstart', 'li.active-result', function (event) {
+        $csb_drop.on('mousedown touchstart', 'li.active-result', function (event) {
             var option_index;
             //event.preventDefault();
-            if (event.which === 1 || event.type === 'custom:touchdown' || event.type === 'touchstart') {
+            if (event.which === 1 || event.type === 'touchstart') {
                 option_index = $.data(this, 'csb-option-index');
                 if (current_index !== option_index) {
                     if (has_class_list) {
