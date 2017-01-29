@@ -598,5 +598,11 @@
             return this;
         }
     };
+    extend_options.customSelectBox.closeAll = function closeAll() {
+        var k, len;
+        for (k = 0, len = list_of_csb.length; k < len; k += 1) {
+            list_of_csb[k].trigger('csb:close-proxy');
+        }
+    }
     $.fn.extend(extend_options);
 }(window, (typeof jQuery === "function" && jQuery) || (typeof module === "object" && typeof module.exports === "function" && module.exports)));
