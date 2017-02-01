@@ -26,6 +26,9 @@
 				padding-top: 50px;
                 width: 640px;
             }
+            #normal {
+                height: 36px;
+            }
         </style>
         <script type="text/javascript" src="jquery-1.11.1.min.js"></script>
         <script type="text/javascript" src="jquery.domxy.js"></script>
@@ -64,7 +67,10 @@
 					});
                     $document.on('keydown', function (event) {
                         event.preventDefault();
+                    }).on('mousedown touchstart click', function (event) {
+                        console.log('triggered ' + event.type);
                     });
+                    //$('#normal').on('');
                 });
             }(window, jQuery));
         </script>
@@ -74,7 +80,7 @@
             <table style="width: 100%;">
                 <tr>
                     <td>
-                        <select name="selection" data-placeholder="Nothing to see here">
+                        <select id="select-1" name="selection" data-placeholder="Nothing to see here">
                             <option value="Jaycliff">Jaycliff</option>
                             <option value="Arcilla">Arcilla</option>
                             <optgroup label="This is a simulated optgroup">
@@ -91,7 +97,7 @@
                         </select>
                     </td>
                     <td>
-                        <select name="selectioner" data-placeholder="Nothing to see here">
+                        <select id="select-2" name="selectioner" data-placeholder="Nothing to see here">
                             <optgroup label="Power Rangers">
                                 <option value="Red Ranger">Red Ranger</option>
                                 <option value="Blue Ranger">Blue Ranger</option>
@@ -110,7 +116,7 @@
                         </select>
                     </td>
                     <td>
-                        <select name="selectionist" data-placeholder="Nothing to see here">
+                        <select id="select-3" name="selectionist" data-placeholder="Nothing to see here">
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
@@ -121,10 +127,20 @@
                             <option value="8">8</option>
                             <option value="9">9</option>
                             <option value="10">10</option>
+                            <option value="1">11</option>
+                            <option value="2">12</option>
+                            <option value="3">13</option>
+                            <option value="4">14</option>
+                            <option value="5">15</option>
+                            <option value="6">16</option>
+                            <option value="7">17</option>
+                            <option value="8">18</option>
+                            <option value="9">19</option>
+                            <option value="10">20</option>
                         </select>
                     </td>
                     <td>
-                        <select>
+                        <select id="normal" class="normal">
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
@@ -135,6 +151,16 @@
                             <option value="8">8</option>
                             <option value="9">9</option>
                             <option value="10">10</option>
+                            <option value="1">11</option>
+                            <option value="2">12</option>
+                            <option value="3">13</option>
+                            <option value="4">14</option>
+                            <option value="5">15</option>
+                            <option value="6">16</option>
+                            <option value="7">17</option>
+                            <option value="8">18</option>
+                            <option value="9">19</option>
+                            <option value="10">20</option>
                         </select>
                     </td>
                 </tr>
