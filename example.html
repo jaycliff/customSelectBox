@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Custom Select Box</title>
         <link rel="stylesheet" type="text/css" href="jquery.customselectbox.css" />
+        <link rel="stylesheet" type="text/css" href="perfect-scrollbar/css/perfect-scrollbar.min.css" />
         <style type="text/css">
             * {
                 margin: 0;
@@ -29,10 +30,17 @@
             #normal {
                 height: 36px;
             }
+            
+            body .csb-drop ul li {
+                height: 32px;
+                line-height: 32px;
+            }
         </style>
         <script type="text/javascript" src="jquery-1.11.1.min.js"></script>
         <script type="text/javascript" src="jquery.domxy.js"></script>
         <script type="text/javascript" src="jquery.customselectbox.js"></script>
+        <script type="text/javascript" src="perfect-scrollbar/js/perfect-scrollbar.jquery.min.js"></script>
+        <script type="text/javascript" src="one-liner-text/jquery-one-liner-text.js"></script>
         <script type="text/javascript">
             /*jslint browser: true, devel: true */
             /*global jQuery, browserDetect*/
@@ -67,9 +75,18 @@
 					});
                     $document.on('keydown', function (event) {
                         event.preventDefault();
-                    }).on('mousedown touchstart click', function (event) {
+                    }).on('mousedown touchstart touchmove touchend click', function (event) {
                         console.log('triggered ' + event.type);
                     });
+                    //*
+                    $('.csb-ol-wrap').perfectScrollbar({
+                        swipePropagation: false
+                    }).find('li').oneLinerText();
+                    $select.on('csb:open', function (event, parts) {
+                        console.log('shit');
+                        parts['ol-wrap'].perfectScrollbar('update');
+                    });
+                    //*/
                     //$('#normal').on('');
                 });
             }(window, jQuery));

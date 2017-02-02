@@ -257,6 +257,9 @@
                 }
                 console.log($csb_drop.css('top'));
             }
+            function delayedDocumentEventAttachment() {
+                $document.on('mousedown touchstart', closeCSB);
+            }
             openCSB = function openCSB() {
                 var i, length, $item;
                 if (!is_open) {
@@ -291,9 +294,8 @@
                     if (typeof wrap.scrollIntoViewIfNeeded === "function") {
                         wrap.scrollIntoViewIfNeeded();
                     }
-                    setTimeout(function () {
-                        $document.on('mousedown touchstart', closeCSB);
-                    }, 0);
+                    //$document.on('mousedown touchstart', closeCSB);
+                    setTimeout(delayedDocumentEventAttachment, 0);
                     trigger_param_list.push(parts);
                     $this.trigger('csb:open', trigger_param_list);
                     trigger_param_list.length = 0;
@@ -301,9 +303,8 @@
             };
             closeCSB = function closeCSB(event) {
                 if (is_open) {
-                    //console.log(event);
                     console.log('closeCSB');
-                    //console.log(event);
+                    console.log(event);
                     is_open = false;
                     $this.data('csb:open', false);
                     if (has_class_list) {
@@ -427,12 +428,12 @@
         $this.data('csb::$csb_single', $csb_single);
         $csb_single.on('mousedown touchstart', function (event) {
             event.preventDefault();
-            event.stopPropagation();
+            //event.stopPropagation();
             //console.log('CSB SINGLE: ' + event.type);
             if (event.type === 'mousedown' && event.which === 3) {
                 return;
             }
-            event.stopPropagation();
+            console.log(event.target);
             if ($this[0].disabled) {
                 return;
             }
@@ -456,7 +457,7 @@
         $.data(csb_label, '$this', $csb_label);
         $.data(csb_drop, '$this', $csb_drop);
         // End $this-a-thon
-        $csb_drop.on('touchstart', 'li.group-result, li.disabled-result', function (event) {
+        $csb_drop.on('touchstart touchmove', 'li.group-result, li.disabled-result', function (event) {
             event.stopPropagation();
             //console.log(event.originalEvent);
         });
@@ -465,7 +466,9 @@
             //event.preventDefault();
             switch (event.type) {
             case 'mousedown':
+                // Right-click is 3
                 if (event.which === 3) {
+                    event.stopPropagation();
                     return;
                 }
                 $.data(this, 'selected', false);
@@ -474,16 +477,16 @@
             case 'touchstart':
                 $.data(this, 'selected', true);
                 event.stopPropagation();
-                //console.log('list item activated');
+                console.log('list item activated');
                 return;
             case 'touchcancel':
                 /* falls through */
             case 'touchmove':
                 if ($.data(this, 'selected')) {
                     $.data(this, 'selected', false);
-                    //console.log('list item cancelled');
+                    console.log('list item cancelled');
                 }
-                //event.stopPropagation();
+                event.stopPropagation();
                 return;
             case 'touchend':
                 if ($.data(this, 'selected')) {
