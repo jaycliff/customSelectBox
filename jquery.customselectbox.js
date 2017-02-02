@@ -428,7 +428,7 @@
         $this.data('csb::$csb_single', $csb_single);
         $csb_single.on('mousedown touchstart', function (event) {
             event.preventDefault();
-            //event.stopPropagation();
+            event.stopPropagation();
             //console.log('CSB SINGLE: ' + event.type);
             if (event.type === 'mousedown' && event.which === 3) {
                 return;
