@@ -33,7 +33,7 @@
         default_placeholder_text = 'Select an item';
 	if (typeof Object.freeze !== "function") {
 		Object.freeze = function freeze(obj) {
-			console.log('NOTE: This host does not have this feature [Object.freeze]');
+			console.log('NOTE: This host does not have this feature -> Object.freeze');
 			return obj;
 		};
 	}
@@ -142,6 +142,7 @@
         wrap.appendChild(csb_single);
         // bottom
         csb_drop.className = 'csb-drop csb-mc regular';
+        csb_drop.setAttribute('tabindex', 0);
         csb_ol_wrap.className = 'csb-ol-wrap';
         csb_option_list.className = 'csb-option-list';
         placeholder_text = $this[0].getAttribute('data-placeholder');
@@ -253,25 +254,23 @@
 						$wrap.removeClass('csb-reverse');
 						reverse_drop = false;
 					}
-					console.log('normal');
+					// console.log('normal');
                 }
                 console.log($csb_drop.css('top'));
             }
-            function delayedDocumentEventAttachment() {
-                $document.on('mousedown touchstart', closeCSB);
-            }
             openCSB = function openCSB() {
-                var i, length, $item;
+                // var i, length, $item;
                 if (!is_open) {
                     console.log('openCSB');
                     is_open = true;
                     $this.data('csb:open', true);
-                    for (i = 0, length = list_of_csb.length; i < length; i += 1) {
-                        $item = list_of_csb[i];
-                        if ($item !== $this && $item.data('csb:open')) {
-                            $item.trigger(event); // Close any open dropdown
-                        }
-                    }
+                    // for (i = 0, length = list_of_csb.length; i < length; i += 1) {
+                    //     $item = list_of_csb[i];
+                    //     if ($item !== $this && $item.data('csb:open')) {
+                    //         console.log('csb:close');
+                    //         $item.trigger(event); // Close any open dropdown
+                    //     }
+                    // }
                     if (has_class_list) {
                         csb_single.parentNode.classList.add('csb-with-drop');
                         csb_single.parentNode.classList.add('csb-container-active');
@@ -286,6 +285,7 @@
                     }
                     //$csb_drop.css('opacity', 0).show().css('top', -$csb_drop.outerHeight()).css('left', -$csb_drop.outerWidth());
                     $csb_drop.show();
+                    $csb_drop.trigger('focus');
                     initial_dropdown_height = $csb_drop.outerHeight();
                     $window.on('resize', resizeHandler);
                     resizeHandler();
@@ -294,8 +294,10 @@
                     if (typeof wrap.scrollIntoViewIfNeeded === "function") {
                         wrap.scrollIntoViewIfNeeded();
                     }
-                    //$document.on('mousedown touchstart', closeCSB);
-                    setTimeout(delayedDocumentEventAttachment, 0);
+                    setTimeout(function () {
+                        console.log('document mousedown touchstart');
+                        $document.on('mousedown touchstart', closeCSB);
+                    }, 0);
                     trigger_param_list.push(parts);
                     $this.trigger('csb:open', trigger_param_list);
                     trigger_param_list.length = 0;
@@ -303,8 +305,9 @@
             };
             closeCSB = function closeCSB(event) {
                 if (is_open) {
-                    console.log('closeCSB');
                     console.log(event);
+                    console.log('closeCSB');
+                    //console.log(event);
                     is_open = false;
                     $this.data('csb:open', false);
                     if (has_class_list) {
@@ -427,16 +430,16 @@
         $csb_single = $(csb_single);
         $this.data('csb::$csb_single', $csb_single);
         $csb_single.on('mousedown touchstart', function (event) {
+            if ($this[0].disabled) {
+                return;
+            }
             event.preventDefault();
             event.stopPropagation();
             //console.log('CSB SINGLE: ' + event.type);
             if (event.type === 'mousedown' && event.which === 3) {
                 return;
             }
-            console.log(event.target);
-            if ($this[0].disabled) {
-                return;
-            }
+            event.stopPropagation();
             if (is_open) {
                 closeCSB();
             } else {
@@ -448,8 +451,14 @@
         $csb_drop = $(csb_drop).hide();
 		$csb_ol_wrap = $(csb_ol_wrap);
         $this.data('csb::$csb_drop', $csb_drop);
-        $csb_drop.on('mousedown', function (event) {
+        $csb_drop.on('mousedown touchstart', function (event) {
+            event.preventDefault();
             event.stopPropagation();
+        }).on('blur', function (event) {
+            console.log(event.type);
+            if (is_open) {
+                closeCSB();
+            }
         });
         // Start $this-a-thon
         $.data(wrap, '$this', $wrap);
@@ -457,85 +466,126 @@
         $.data(csb_label, '$this', $csb_label);
         $.data(csb_drop, '$this', $csb_drop);
         // End $this-a-thon
-        $csb_drop.on('touchstart touchmove', 'li.group-result, li.disabled-result', function (event) {
+        $csb_drop.on('touchstart', 'li.group-result, li.disabled-result', function (event) {
             event.stopPropagation();
             //console.log(event.originalEvent);
         });
-        $csb_drop.on('mousedown touchstart touchmove touchend touchcancel', 'li.active-result', function (event) {
-            var option_index;
-            //event.preventDefault();
-            switch (event.type) {
-            case 'mousedown':
-                // Right-click is 3
-                if (event.which === 3) {
+        (function () {
+            var $csb_option_list = $(csb_option_list), touch_id = 0, prevX = 0, prevY = 0, tm_attached = false;
+            function touchmove(event) {
+                var originalEvent = event.originalEvent, changedTouches, touch_object;
+                changedTouches = originalEvent.changedTouches;
+                touch_object = changedTouches[changedTouches.length - 1];
+                console.log(touch_id, prevX, prevY, touch_object.identifier, touch_object.pageX, touch_object.pageY);
+                if (touch_object.identifier !== touch_id || (touch_object.pageX === prevX && touch_object.pageY === prevY)) {
+                    console.log('cancel touchmove');
                     event.stopPropagation();
                     return;
                 }
-                $.data(this, 'selected', false);
-                break;
-            // The touch events here simulate a mouse click
-            case 'touchstart':
-                $.data(this, 'selected', true);
-                event.stopPropagation();
-                console.log('list item activated');
-                return;
-            case 'touchcancel':
-                /* falls through */
-            case 'touchmove':
-                if ($.data(this, 'selected')) {
-                    $.data(this, 'selected', false);
-                    console.log('list item cancelled');
-                }
-                event.stopPropagation();
-                return;
-            case 'touchend':
-                if ($.data(this, 'selected')) {
-                    $.data(this, 'selected', false);
-                    break;
+                console.log((touch_object.pageY - prevY));
+                if (Math.abs(touch_object.pageY - prevY) <= 10) {
+                    event.stopPropagation();
                 } else {
+                    if (tm_attached) {
+                        tm_attached = false;
+                        $csb_option_list.off('touchmove', touchmove);
+                    }
+                }
+            }
+            $csb_drop.on('mousedown touchstart touchmove touchend touchcancel', 'li.active-result', function (event) {
+                var option_index, originalEvent = event.originalEvent, changedTouches, touch_object;
+                // console.log(event);
+                // Calling event.preventDefault() somehow stops touchmove from triggering right after touchstart
+                if (!originalEvent) {
                     return;
                 }
-            }
-            event.stopPropagation();
-            option_index = $.data(this, 'csb-option-index');
-            if (current_index !== option_index) {
-                if (has_class_list) {
-                    csb_single.classList.remove('csb-empty');
-                } else {
-                    $csb_single.removeClass('csb-empty');
-                }
-                if (option_index > 0) {
-                    if (has_class_list) {
-                        csb_single.classList.remove('csb-default');
-                    } else {
-                        $csb_single.removeClass('csb-default');
+                event.preventDefault();
+                console.log(event.type);
+                switch (event.type) {
+                case 'mousedown':
+                    if (event.which === 3) {
+                        return;
                     }
-                } else {
-                    if (has_class_list) {
-                        csb_single.classList.add('csb-default');
+                    $.data(this, 'selected', false);
+                    break;
+                // The touch events here simulate a mouse click
+                case 'touchstart':
+                    $.data(this, 'selected', true);
+                    event.stopPropagation();
+                    changedTouches = originalEvent.changedTouches;
+                    touch_object = changedTouches[changedTouches.length - 1];
+                    touch_id = touch_object.identifier;
+                    prevX =  touch_object.pageX;
+                    prevY =  touch_object.pageY;
+                    if (!tm_attached) {
+                        tm_attached = true;
+                        $csb_option_list.on('touchmove', touchmove);
+                    }
+                    //console.log('list item activated');
+                    return;
+                case 'touchmove':
+                    console.log('can touchmove now');
+                    /* falls through */
+                case 'touchcancel':
+                    if ($.data(this, 'selected')) {
+                        $.data(this, 'selected', false);
+                        //console.log('list item cancelled');
+                    }
+                    //event.stopPropagation();
+                    return;
+                case 'touchend':
+                    if (tm_attached) {
+                        tm_attached = false;
+                        $csb_option_list.off('touchmove', touchmove);
+                    }
+                    if ($.data(this, 'selected')) {
+                        $.data(this, 'selected', false);
+                        break;
                     } else {
-                        $csb_single.addClass('csb-default');
+                        return;
                     }
                 }
-                if (selected_item) {
+                event.stopPropagation();
+                option_index = $.data(this, 'csb-option-index');
+                if (current_index !== option_index) {
                     if (has_class_list) {
-                        selected_item.classList.remove('csb-selected');
+                        csb_single.classList.remove('csb-empty');
                     } else {
-                        $.data(selected_item, '$this').removeClass('csb-selected');
+                        $csb_single.removeClass('csb-empty');
                     }
+                    if (option_index > 0) {
+                        if (has_class_list) {
+                            csb_single.classList.remove('csb-default');
+                        } else {
+                            $csb_single.removeClass('csb-default');
+                        }
+                    } else {
+                        if (has_class_list) {
+                            csb_single.classList.add('csb-default');
+                        } else {
+                            $csb_single.addClass('csb-default');
+                        }
+                    }
+                    if (selected_item) {
+                        if (has_class_list) {
+                            selected_item.classList.remove('csb-selected');
+                        } else {
+                            $.data(selected_item, '$this').removeClass('csb-selected');
+                        }
+                    }
+                    selected_item = this;
+                    if (has_class_list) {
+                        this.classList.add('csb-selected');
+                    } else {
+                        this.className += ' csb-selected';
+                    }
+                    csb_label.textContent = this.textContent;
+                    $this.prop('selectedIndex', option_index).trigger('change');
                 }
-                selected_item = this;
-                if (has_class_list) {
-                    this.classList.add('csb-selected');
-                } else {
-                    this.className += ' csb-selected';
-                }
-                csb_label.textContent = this.textContent;
-                $this.prop('selectedIndex', option_index).trigger('change');
-            }
-            //console.log(option_index);
-            closeCSB(event);
-        });
+                //console.log(option_index);
+                closeCSB(event);
+            });
+        }());
 		parts = Object.freeze({
 			'select': $this,
 			'wrap': $wrap,
@@ -638,6 +688,7 @@
     };
     extend_options.customSelectBox.closeAll = function closeAll() {
         var k, len;
+        console.log('closeAll');
         for (k = 0, len = list_of_csb.length; k < len; k += 1) {
             list_of_csb[k].trigger('csb:close-proxy');
         }

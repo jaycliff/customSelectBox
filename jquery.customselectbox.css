@@ -5,10 +5,20 @@
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
 }
 
+body .csb-drop-container {
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 999;
+}
+
 .csb-container,
 body .csb-drop {
     font-family: Arial;
     font-size: 12px;
+    /* outline: none; */
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
@@ -122,7 +132,6 @@ body .csb-drop,
     margin-bottom: -1px;
     border-radius: 2px 2px 0 0;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    z-index: 999;
 }
 
 body .csb-drop.regular,
