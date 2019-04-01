@@ -41,7 +41,7 @@
         <script type="text/javascript" src="jquery.customselectbox.js"></script>
         <script type="text/javascript" src="perfect-scrollbar/js/perfect-scrollbar.jquery.min.js"></script>
         <script type="text/javascript" src="one-liner-text/jquery-one-liner-text.js"></script>
-        <script type="text/javascript">
+        <!-- <script type="text/javascript">
             /*jslint browser: true, devel: true */
             /*global jQuery, browserDetect*/
             (function (global, $) {
@@ -90,6 +90,15 @@
                     //$('#normal').on('');
                 });
             }(window, jQuery));
+        </script> -->
+        <script type="text/javascript">
+            jQuery(document).ready(function ($) {
+                "use strict";
+                $('select[name*="select"]').customSelectBox({ width: '150px' });
+                $('#normal').on('focus', function () {
+                    this.blur();
+                });
+            });
         </script>
     </head>
     <body>

@@ -455,10 +455,9 @@
             event.preventDefault();
             event.stopPropagation();
         }).on('blur', function (event) {
+            event.stopPropagation();
             console.log(event.type);
-            if (is_open) {
-                closeCSB();
-            }
+            closeCSB();
         });
         // Start $this-a-thon
         $.data(wrap, '$this', $wrap);
