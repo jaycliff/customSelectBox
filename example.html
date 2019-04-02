@@ -12,6 +12,7 @@
                 padding: 0;
             }
             html, body {
+                background-color: #c0c0c0;
                 height: 100%;
             }
             body:before {
@@ -20,7 +21,8 @@
                 height: 50%;
             }
             #wrap {
-                border: solid 1px #c0c0c0;
+                background-color: #e0e0e0;
+                border: solid 1px #a0a0a0;
                 height: 64px;
                 margin: -32px auto 0;
                 overflow: auto;
@@ -94,9 +96,19 @@
         <script type="text/javascript">
             jQuery(document).ready(function ($) {
                 "use strict";
+                var $normal = $('#normal');
                 $('select[name*="select"]').customSelectBox({ width: '150px' });
-                $('#normal').on('focus', function () {
-                    this.blur();
+                $('#wrap').on('mousedown touchstart', function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    $normal.trigger('focus');
+                    // setTimeout(function () {
+                    //     $normal.trigger('focus');
+                    // }, 0);
+                });
+                $normal.on('focus', function () {
+                    console.log('focus', document.activeElement);
+                    // this.blur();
                 });
             });
         </script>

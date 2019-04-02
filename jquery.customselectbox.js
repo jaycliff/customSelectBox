@@ -293,8 +293,14 @@
                     if (typeof wrap.scrollIntoViewIfNeeded === "function") {
                         wrap.scrollIntoViewIfNeeded();
                     }
+                    // requestAnimationFrame(function () {
+                    //     $csb_drop.trigger('focus');
+                    // });
                     setTimeout(function () {
                         $csb_drop.trigger('focus');
+                    }, 1000 / 120);
+                    setTimeout(function () {
+                        // $csb_drop.trigger('focus');
                         console.log('document mousedown touchstart');
                         $document.on('mousedown touchstart', closeCSB);
                     }, 0);
@@ -455,7 +461,7 @@
             event.preventDefault();
             event.stopPropagation();
         }).on('blur', function (event) {
-            event.stopPropagation();
+            // event.stopPropagation();
             console.log(event.type);
             closeCSB();
         }).on('focus', function (event) {
