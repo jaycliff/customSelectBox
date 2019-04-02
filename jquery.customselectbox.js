@@ -256,7 +256,7 @@
 					}
 					// console.log('normal');
                 }
-                console.log($csb_drop.css('top'));
+                // console.log($csb_drop.css('top'));
             }
             openCSB = function openCSB() {
                 // var i, length, $item;
@@ -285,7 +285,6 @@
                     }
                     //$csb_drop.css('opacity', 0).show().css('top', -$csb_drop.outerHeight()).css('left', -$csb_drop.outerWidth());
                     $csb_drop.show();
-                    $csb_drop.trigger('focus');
                     initial_dropdown_height = $csb_drop.outerHeight();
                     $window.on('resize', resizeHandler);
                     resizeHandler();
@@ -295,6 +294,7 @@
                         wrap.scrollIntoViewIfNeeded();
                     }
                     setTimeout(function () {
+                        $csb_drop.trigger('focus');
                         console.log('document mousedown touchstart');
                         $document.on('mousedown touchstart', closeCSB);
                     }, 0);
@@ -305,7 +305,7 @@
             };
             closeCSB = function closeCSB(event) {
                 if (is_open) {
-                    console.log(event);
+                    event && console.log(event);
                     console.log('closeCSB');
                     //console.log(event);
                     is_open = false;
@@ -434,9 +434,9 @@
                 return;
             }
             event.preventDefault();
-            event.stopPropagation();
             //console.log('CSB SINGLE: ' + event.type);
             if (event.type === 'mousedown' && event.which === 3) {
+                event.stopPropagation();
                 return;
             }
             event.stopPropagation();
@@ -458,6 +458,8 @@
             event.stopPropagation();
             console.log(event.type);
             closeCSB();
+        }).on('focus', function (event) {
+            console.log(event);
         });
         // Start $this-a-thon
         $.data(wrap, '$this', $wrap);
