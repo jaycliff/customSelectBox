@@ -28,6 +28,7 @@
                 overflow: auto;
 				padding-top: 50px;
                 width: 640px;
+                transition: margin 30s;
             }
             #normal {
                 height: 36px;
@@ -101,14 +102,23 @@
                 $('#wrap').on('mousedown touchstart', function (event) {
                     event.preventDefault();
                     event.stopPropagation();
-                    $normal.trigger('focus');
+                    $normal.show().trigger('focus');
                     // setTimeout(function () {
                     //     $normal.trigger('focus');
                     // }, 0);
                 });
-                $normal.on('focus', function () {
-                    console.log('focus', document.activeElement);
-                    // this.blur();
+                $normal
+                    // .hide()
+                    .on('focus', function () {
+                        console.log('focus', document.activeElement);
+                        // this.blur();
+                    }).on('blur', function () {
+                        // $normal.hide();
+                    });
+                jQuery('body').on('touchstart mousedown', function (event) {
+                    // event.preventDefault(); // Disable blur of focused element
+                    // event.stopPropagation();
+                    console.log(event);
                 });
             });
         </script>
@@ -180,6 +190,28 @@
                     <td>
                         <button>I am a test button</button>
                         <select id="normal" class="normal">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="1">11</option>
+                            <option value="2">12</option>
+                            <option value="3">13</option>
+                            <option value="4">14</option>
+                            <option value="5">15</option>
+                            <option value="6">16</option>
+                            <option value="7">17</option>
+                            <option value="8">18</option>
+                            <option value="9">19</option>
+                            <option value="10">20</option>
+                        </select>
+                        <select class="normal">
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>

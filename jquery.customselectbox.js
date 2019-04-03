@@ -164,100 +164,117 @@
             var event = $.Event('csb:close-proxy'),
                 initial_dropdown_height,
                 reverse_drop = false,
-				is_hidden = false,
-                reset_top = false, // Helps avoid overflow problems when resetting the top value
+                rafCallback,
+                resizeHandler,
+				// is_hidden = false,
                 raf_id;
             event.which = 1;
-            function rafCallback() {
-				var wrap_y = $wrap.getY();
-                $csb_drop
-                    .css('width', $wrap.outerWidth())
-                    .css('left', $wrap.getX());
-				if (reverse_drop) {
-                    if (reset_top) {
-						csb_drop.style.top = '';
-                        reset_top = false;
+            (function () {
+                var reset_top = false, // Helps avoid overflow problems when resetting the top value
+                    prevX = 0,
+                    prevY = 0;
+                rafCallback = function rafCallback() {
+                    var gbcr = wrap.getBoundingClientRect(), wrap_x = gbcr.left, wrap_y = gbcr.top, wrap_outerwidth = gbcr.width, wrap_outerheight = gbcr.height;
+                    if (prevX !== wrap_x || prevY !== wrap_y) {
+                        console.log('Adjusting dropdown...');
+                        prevX = wrap_x;
+                        prevY = wrap_y;
+                        $csb_drop
+                            .css('width', wrap_outerwidth)
+                            .css('left', wrap_x);
+                        if (reverse_drop) {
+                            if (reset_top) {
+                                csb_drop.style.top = '';
+                                reset_top = false;
+                            }
+                            $csb_drop.css('bottom', $window.height() - wrap_y);
+                            if (wrap_y - parseInt($csb_drop.css('margin-bottom'), 10) < $csb_drop.outerHeight()) {
+                                // setTimeout(resizeHandler, 0);
+                                resizeHandler();
+                            }
+                        } else {
+                            $csb_drop.css('top', wrap_y + wrap_outerheight);
+                            if ($window.height() < $csb_drop.outerHeight() + (wrap_outerheight + wrap_y) + parseInt($csb_drop.css('margin-top'), 10)) {
+                                // setTimeout(resizeHandler, 0);
+                                resizeHandler();
+                            }
+                        }
+                        // if (is_hidden) {
+                        //     console.log('coming out...');
+                        // 	$csb_drop[0].style.visibility = '';
+                        // 	is_hidden = false;
+                        // }
+                        trigger_param_list.push(parts);
+                        $this.trigger('csb:dropdownrefresh', trigger_param_list);
+                        trigger_param_list.length = 0;
                     }
-					$csb_drop.css('bottom', $window.height() - wrap_y);
-					if (wrap_y - parseInt($csb_drop.css('margin-bottom'), 10) < $csb_drop.outerHeight()) {
-						setTimeout(resizeHandler, 0);
-					}
-				} else {
-					$csb_drop.css('top', wrap_y + $wrap.outerHeight());
-					if ($window.height() < $csb_drop.outerHeight() + ($wrap.outerHeight() + wrap_y) + parseInt($csb_drop.css('margin-top'), 10)) {
-						setTimeout(resizeHandler, 0);
-					}
-				}
-				if (is_hidden) {
-					$csb_drop[0].style.visibility = '';
-					is_hidden = false;
-				}
-				trigger_param_list.push(parts);
-				$this.trigger('csb:dropdownrefresh', trigger_param_list);
-				trigger_param_list.length = 0;
-                raf_id = requestAnimationFrame(rafCallback);
-            }
-            function resizeHandler() {
-				var window_height = $window.height(),
-					wrap_y = $wrap.getY(),
-					normal_dropdown_target_y = ($wrap.outerHeight() + wrap_y) + parseInt($csb_drop.css('margin-top'), 10),
-					initial_normal_total_height = initial_dropdown_height + normal_dropdown_target_y,
-					top_height;
-				if (reverse_drop) {
-					$csb_drop.css('visibility', 'hidden');
-					is_hidden = true;
-				}
-				// Set the dropdown to upper left to avoid overflow scrollbars on body
-				$csb_drop.css('visibility', 'hidden').css('width', $wrap.outerWidth()).css('left', -$csb_drop.outerWidth()).css('top', -$csb_drop.outerHeight());
-				is_hidden = true;
-                if (window_height < initial_normal_total_height) {
-					//console.log('WINDOW HEIGHT: ' + window_height + ', INITIAL DROPDOWN HEIGHT: ' + initial_dropdown_height + ', INITIAL TOTAL HEIGHT: ' + initial_normal_total_height);
-					//console.log('TOP: ' + $csb_drop.css('top') + ', LEFT: ' + $csb_drop.css('left'));
-                    top_height = wrap_y - ((reverse_drop) ? parseInt($csb_drop.css('margin-bottom'), 10) : parseInt($csb_drop.css('margin-top'), 10));
-					if (top_height >= initial_dropdown_height) {
-                        //csb_drop.style.top = '';
-                        reset_top = true;
+                    raf_id = requestAnimationFrame(rafCallback);
+                };
+                resizeHandler = function resizeHandler() {
+                    var window_height = $window.height(),
+                        wrap_y = prevY || $wrap.getY(),
+                        normal_dropdown_target_y = ($wrap.outerHeight() + wrap_y) + parseInt($csb_drop.css('margin-top'), 10),
+                        initial_normal_total_height = initial_dropdown_height + normal_dropdown_target_y,
+                        top_height;
+                    // if (reverse_drop) {
+                    // 	$csb_drop.css('visibility', 'hidden');
+                    // 	is_hidden = true;
+                    // }
+                    // Set the dropdown to upper left to avoid overflow scrollbars on body
+                    prevX = -$csb_drop.outerWidth();
+                    prevY = -$csb_drop.outerHeight();
+                    $csb_drop.css('width', $wrap.outerWidth()).css('left', prevX).css('top', prevY);
+                    // $csb_drop.css('visibility', 'hidden').css('width', $wrap.outerWidth()).css('left', -$csb_drop.outerWidth()).css('top', -$csb_drop.outerHeight());
+                    // is_hidden = true;
+                    if (window_height < initial_normal_total_height) {
+                        //console.log('WINDOW HEIGHT: ' + window_height + ', INITIAL DROPDOWN HEIGHT: ' + initial_dropdown_height + ', INITIAL TOTAL HEIGHT: ' + initial_normal_total_height);
+                        //console.log('TOP: ' + $csb_drop.css('top') + ', LEFT: ' + $csb_drop.css('left'));
+                        top_height = wrap_y - ((reverse_drop) ? parseInt($csb_drop.css('margin-bottom'), 10) : parseInt($csb_drop.css('margin-top'), 10));
+                        if (top_height >= initial_dropdown_height) {
+                            //csb_drop.style.top = '';
+                            reset_top = true;
+                            csb_ol_wrap.style.maxHeight = '';
+                            if (!reverse_drop) {
+                                $csb_drop.removeClass('regular');
+                                $wrap.addClass('csb-reverse');
+                                reverse_drop = true;
+                            }
+                            console.log('drop above');
+                        } else {
+                            if (top_height > window_height - normal_dropdown_target_y) {
+                                if (!reverse_drop) {
+                                    $csb_drop.removeClass('regular');
+                                    $wrap.addClass('csb-reverse');
+                                    reverse_drop = true;
+                                }
+                                $csb_drop.css('top', 0);
+                                csb_ol_wrap.style.maxHeight = '100%';
+                                console.log('top sticky');
+                            } else {
+                                if (reverse_drop) {
+                                    $csb_drop.addClass('regular');
+                                    $wrap.removeClass('csb-reverse');
+                                    reverse_drop = false;
+                                }
+                                $csb_drop.css('bottom', 0);
+                                csb_ol_wrap.style.maxHeight = '100%';
+                                console.log('bottom sticky');
+                            }
+                        }
+                        //console.log('BOOM');
+                    } else {
+                        csb_drop.style.bottom = '';
                         csb_ol_wrap.style.maxHeight = '';
-						if (!reverse_drop) {
-							$csb_drop.removeClass('regular');
-							$wrap.addClass('csb-reverse');
-							reverse_drop = true;
-						}
-						console.log('drop above');
-					} else {
-						if (top_height > window_height - normal_dropdown_target_y) {
-							if (!reverse_drop) {
-								$csb_drop.removeClass('regular');
-								$wrap.addClass('csb-reverse');
-								reverse_drop = true;
-							}
-							$csb_drop.css('top', 0);
-							csb_ol_wrap.style.maxHeight = '100%';
-							console.log('top sticky');
-						} else {
-							if (reverse_drop) {
-								$csb_drop.addClass('regular');
-								$wrap.removeClass('csb-reverse');
-								reverse_drop = false;
-							}
-							$csb_drop.css('bottom', 0);
-							csb_ol_wrap.style.maxHeight = '100%';
-							console.log('bottom sticky');
-						}
-					}
-                    //console.log('BOOM');
-                } else {
-                    csb_drop.style.bottom = '';
-                    csb_ol_wrap.style.maxHeight = '';
-					if (reverse_drop) {
-						$csb_drop.addClass('regular');
-						$wrap.removeClass('csb-reverse');
-						reverse_drop = false;
-					}
-					// console.log('normal');
-                }
-                // console.log($csb_drop.css('top'));
-            }
+                        if (reverse_drop) {
+                            $csb_drop.addClass('regular');
+                            $wrap.removeClass('csb-reverse');
+                            reverse_drop = false;
+                        }
+                        // console.log('normal');
+                    }
+                    // console.log($csb_drop.css('top'));
+                };
+            }());
             openCSB = function openCSB() {
                 // var i, length, $item;
                 if (!is_open) {
@@ -286,24 +303,14 @@
                     //$csb_drop.css('opacity', 0).show().css('top', -$csb_drop.outerHeight()).css('left', -$csb_drop.outerWidth());
                     $csb_drop.show();
                     initial_dropdown_height = $csb_drop.outerHeight();
-                    $window.on('resize', resizeHandler);
+                    // $window.on('resize', resizeHandler);
                     resizeHandler();
                     raf_id = requestAnimationFrame(rafCallback);
                     //wrap.scrollIntoView();
                     if (typeof wrap.scrollIntoViewIfNeeded === "function") {
                         wrap.scrollIntoViewIfNeeded();
                     }
-                    // requestAnimationFrame(function () {
-                    //     $csb_drop.trigger('focus');
-                    // });
-                    setTimeout(function () {
-                        $csb_drop.trigger('focus');
-                    }, 1000 / 120);
-                    setTimeout(function () {
-                        // $csb_drop.trigger('focus');
-                        console.log('document mousedown touchstart');
-                        $document.on('mousedown touchstart', closeCSB);
-                    }, 0);
+                    $csb_drop.trigger('focus').on('blur', closeCSB);
                     trigger_param_list.push(parts);
                     $this.trigger('csb:open', trigger_param_list);
                     trigger_param_list.length = 0;
@@ -324,12 +331,11 @@
                         $csb_single.removeClass('csb-container-active');
                     }
                     cancelAnimationFrame(raf_id);
-                    $csb_drop.hide();
+                    $csb_drop.off('blur', closeCSB).hide();
                     //console.log('closed');
-                    $document.off('mousedown touchstart', closeCSB);
-                    csb_drop.style.bottom = '';
-                    csb_ol_wrap.style.maxHeight = '';
-                    $window.off('resize', resizeHandler);
+                    // csb_drop.style.bottom = '';
+                    // csb_ol_wrap.style.maxHeight = '';
+                    // $window.off('resize', resizeHandler);
                     trigger_param_list.push(parts);
                     $this.trigger('csb:close', trigger_param_list);
                     trigger_param_list.length = 0;
@@ -460,10 +466,6 @@
         $csb_drop.on('mousedown touchstart', function (event) {
             event.preventDefault();
             event.stopPropagation();
-        }).on('blur', function (event) {
-            // event.stopPropagation();
-            console.log(event.type);
-            closeCSB();
         }).on('focus', function (event) {
             console.log(event);
         });
