@@ -112,6 +112,7 @@
 			$csb_ol_wrap,
             current_index = $this.prop('selectedIndex'),
             is_open = false,
+            is_hidden = false,
             // list_of_children contains all options and optgroups of a given select element. used in generating the list items of the proxy
             list_of_children = [],
             selected_item = null,
@@ -135,6 +136,7 @@
             }
         }
         csb_single.className = 'csb-single';
+        csb_single.setAttribute('tabindex', 0);
         csb_label.className = 'csb-label';
         csb_single.appendChild(csb_label);
         csb_arrow.className = 'csb-arrow';
@@ -142,7 +144,7 @@
         wrap.appendChild(csb_single);
         // bottom
         csb_drop.className = 'csb-drop csb-mc regular';
-        csb_drop.setAttribute('tabindex', 0);
+        // csb_drop.setAttribute('tabindex', 0);
         csb_ol_wrap.className = 'csb-ol-wrap';
         csb_option_list.className = 'csb-option-list';
         placeholder_text = $this[0].getAttribute('data-placeholder');
@@ -165,7 +167,7 @@
                 initial_dropdown_height,
                 reverse_drop = false,
                 rafCallback,
-                resizeHandler,
+                calculateDropdownPosition,
 				// is_hidden = false,
                 raf_id;
             event.which = 1;
@@ -189,28 +191,28 @@
                             }
                             $csb_drop.css('bottom', $window.height() - wrap_y);
                             if (wrap_y - parseInt($csb_drop.css('margin-bottom'), 10) < $csb_drop.outerHeight()) {
-                                // setTimeout(resizeHandler, 0);
-                                resizeHandler();
+                                setTimeout(calculateDropdownPosition, 0);
+                                // calculateDropdownPosition();
                             }
                         } else {
                             $csb_drop.css('top', wrap_y + wrap_outerheight);
                             if ($window.height() < $csb_drop.outerHeight() + (wrap_outerheight + wrap_y) + parseInt($csb_drop.css('margin-top'), 10)) {
-                                // setTimeout(resizeHandler, 0);
-                                resizeHandler();
+                                setTimeout(calculateDropdownPosition, 0);
+                                // calculateDropdownPosition();
                             }
                         }
-                        // if (is_hidden) {
-                        //     console.log('coming out...');
-                        // 	$csb_drop[0].style.visibility = '';
-                        // 	is_hidden = false;
-                        // }
+                        if (is_hidden) {
+                            console.log('coming out...');
+                        	$csb_drop[0].style.visibility = '';
+                        	is_hidden = false;
+                        }
                         trigger_param_list.push(parts);
                         $this.trigger('csb:dropdownrefresh', trigger_param_list);
                         trigger_param_list.length = 0;
                     }
                     raf_id = requestAnimationFrame(rafCallback);
                 };
-                resizeHandler = function resizeHandler() {
+                calculateDropdownPosition = function calculateDropdownPosition() {
                     var window_height = $window.height(),
                         wrap_y = prevY || $wrap.getY(),
                         normal_dropdown_target_y = ($wrap.outerHeight() + wrap_y) + parseInt($csb_drop.css('margin-top'), 10),
@@ -223,9 +225,12 @@
                     // Set the dropdown to upper left to avoid overflow scrollbars on body
                     prevX = -$csb_drop.outerWidth();
                     prevY = -$csb_drop.outerHeight();
-                    $csb_drop.css('width', $wrap.outerWidth()).css('left', prevX).css('top', prevY);
+                    $csb_drop
+                        .css('visibility', 'hidden')
+                        .css('width', $wrap.outerWidth())
+                        .css('left', prevX).css('top', prevY);
                     // $csb_drop.css('visibility', 'hidden').css('width', $wrap.outerWidth()).css('left', -$csb_drop.outerWidth()).css('top', -$csb_drop.outerHeight());
-                    // is_hidden = true;
+                    is_hidden = true;
                     if (window_height < initial_normal_total_height) {
                         //console.log('WINDOW HEIGHT: ' + window_height + ', INITIAL DROPDOWN HEIGHT: ' + initial_dropdown_height + ', INITIAL TOTAL HEIGHT: ' + initial_normal_total_height);
                         //console.log('TOP: ' + $csb_drop.css('top') + ', LEFT: ' + $csb_drop.css('left'));
@@ -275,6 +280,12 @@
                     // console.log($csb_drop.css('top'));
                 };
             }());
+            function bodyHandler(event) {
+                // csb_single is included here since we're triggering closeCSB on its event handler
+                if (!csb_drop.contains(event.target) && !csb_single.contains(event.target)) {
+                    closeCSB(event);
+                }
+            }
             openCSB = function openCSB() {
                 // var i, length, $item;
                 if (!is_open) {
@@ -303,18 +314,24 @@
                     //$csb_drop.css('opacity', 0).show().css('top', -$csb_drop.outerHeight()).css('left', -$csb_drop.outerWidth());
                     $csb_drop.show();
                     initial_dropdown_height = $csb_drop.outerHeight();
-                    // $window.on('resize', resizeHandler);
-                    resizeHandler();
+                    // $window.on('resize', calculateDropdownPosition);
+                    calculateDropdownPosition();
                     raf_id = requestAnimationFrame(rafCallback);
                     //wrap.scrollIntoView();
                     if (typeof wrap.scrollIntoViewIfNeeded === "function") {
                         wrap.scrollIntoViewIfNeeded();
                     }
-                    $csb_drop.trigger('focus').on('blur', closeCSB);
+                    $csb_drop.trigger('focus');
+                    // $csb_drop.trigger('focus').on('blur', closeCSB);
+                    document.body.addEventListener('mousedown', bodyHandler, true);
+                    document.body.addEventListener('touchstart', bodyHandler, true);
+                    $window.on('blur', closeCSB);
                     trigger_param_list.push(parts);
                     $this.trigger('csb:open', trigger_param_list);
                     trigger_param_list.length = 0;
+                    return true;
                 }
+                return false;
             };
             closeCSB = function closeCSB(event) {
                 if (is_open) {
@@ -331,15 +348,21 @@
                         $csb_single.removeClass('csb-container-active');
                     }
                     cancelAnimationFrame(raf_id);
-                    $csb_drop.off('blur', closeCSB).hide();
+                    document.body.removeEventListener('mousedown', bodyHandler, true);
+                    document.body.removeEventListener('touchstart', bodyHandler, true);
+                    $window.off('blur', closeCSB);
+                    $csb_drop.hide();
+                    // $csb_drop.off('blur', closeCSB).hide();
                     //console.log('closed');
                     // csb_drop.style.bottom = '';
                     // csb_ol_wrap.style.maxHeight = '';
-                    // $window.off('resize', resizeHandler);
+                    // $window.off('resize', calculateDropdownPosition);
                     trigger_param_list.push(parts);
                     $this.trigger('csb:close', trigger_param_list);
                     trigger_param_list.length = 0;
+                    return true;
                 }
+                return false;
             };
         }());
         $this.on('csb:close-proxy', closeCSB);
@@ -452,10 +475,8 @@
                 return;
             }
             event.stopPropagation();
-            if (is_open) {
+            if (!openCSB()) {
                 closeCSB();
-            } else {
-                openCSB();
             }
         });
         $csb_label = $(csb_label);
