@@ -174,9 +174,20 @@
             (function () {
                 var reset_top = false, // Helps avoid overflow problems when resetting the top value
                     prevX = 0,
-                    prevY = 0;
+                    prevY = 0,
+                    document_has_overflow_y = false;
                 rafCallback = function rafCallback() {
-                    var gbcr = wrap.getBoundingClientRect(), wrap_x = gbcr.left, wrap_y = gbcr.top, wrap_outerwidth = gbcr.width, wrap_outerheight = gbcr.height;
+                    var gbcr = wrap.getBoundingClientRect(),
+                        wrap_x = gbcr.left,
+                        wrap_y = gbcr.top,
+                        wrap_outerwidth = gbcr.width,
+                        wrap_outerheight = gbcr.height,
+                        scroll_amount = (document.documentElement.scrollHeight - document.documentElement.offsetHeight);
+                    if (scroll_amount) {
+                        document_has_overflow_y = true;
+                    } else {
+                        document_has_overflow_y = false;
+                    }
                     if (prevX !== wrap_x || prevY !== wrap_y) {
                         console.log('Adjusting dropdown...');
                         prevX = wrap_x;
@@ -189,22 +200,25 @@
                                 csb_drop.style.top = '';
                                 reset_top = false;
                             }
-                            $csb_drop.css('bottom', $window.height() - wrap_y);
+                            $csb_drop.css('bottom', $window.height() - wrap_y - document.documentElement.scrollTop);
+                            console.log('RAF:', wrap_y - parseInt($csb_drop.css('margin-bottom'), 10), $csb_drop.outerHeight());
                             if (wrap_y - parseInt($csb_drop.css('margin-bottom'), 10) < $csb_drop.outerHeight()) {
-                                setTimeout(calculateDropdownPosition, 0);
-                                // calculateDropdownPosition();
+                                // setTimeout(calculateDropdownPosition, 0);
+                                calculateDropdownPosition();
                             }
                         } else {
-                            $csb_drop.css('top', wrap_y + wrap_outerheight);
-                            if ($window.height() < $csb_drop.outerHeight() + (wrap_outerheight + wrap_y) + parseInt($csb_drop.css('margin-top'), 10)) {
-                                setTimeout(calculateDropdownPosition, 0);
-                                // calculateDropdownPosition();
+                            $csb_drop.css('top', wrap_y + wrap_outerheight + document.documentElement.scrollTop);
+                            console.log('RAF:', $window.height(), $csb_drop.outerHeight() + (wrap_outerheight + wrap_y) + parseInt($csb_drop.css('margin-top'), 10));
+                            if ($window.height() < Math.ceil($csb_drop.outerHeight() + (wrap_outerheight + wrap_y) + parseInt($csb_drop.css('margin-top'), 10))) {
+                                // setTimeout(calculateDropdownPosition, 0);
+                                calculateDropdownPosition();
                             }
                         }
                         if (is_hidden) {
                             console.log('coming out...');
                         	$csb_drop[0].style.visibility = '';
                         	is_hidden = false;
+                            $body.removeClass('csb-overflow-hidden');
                         }
                         trigger_param_list.push(parts);
                         $this.trigger('csb:dropdownrefresh', trigger_param_list);
@@ -212,30 +226,52 @@
                     }
                     raf_id = requestAnimationFrame(rafCallback);
                 };
-                calculateDropdownPosition = function calculateDropdownPosition() {
-                    var window_height = $window.height(),
-                        wrap_y = prevY || $wrap.getY(),
-                        normal_dropdown_target_y = ($wrap.outerHeight() + wrap_y) + parseInt($csb_drop.css('margin-top'), 10),
-                        initial_normal_total_height = initial_dropdown_height + normal_dropdown_target_y,
+                calculateDropdownPosition = function calculateDropdownPosition(initial_setup) {
+                    var scroll_amount = (document.documentElement.scrollHeight - document.documentElement.offsetHeight),
+                        window_height = $window.height() + scroll_amount,
+                        wrap_y,
+                        normal_dropdown_target_y,
+                        initial_normal_total_height,
                         top_height;
                     // if (reverse_drop) {
                     // 	$csb_drop.css('visibility', 'hidden');
                     // 	is_hidden = true;
                     // }
-                    // Set the dropdown to upper left to avoid overflow scrollbars on body
-                    prevX = -$csb_drop.outerWidth();
-                    prevY = -$csb_drop.outerHeight();
-                    $csb_drop
-                        .css('visibility', 'hidden')
-                        .css('width', $wrap.outerWidth())
-                        .css('left', prevX).css('top', prevY);
-                    // $csb_drop.css('visibility', 'hidden').css('width', $wrap.outerWidth()).css('left', -$csb_drop.outerWidth()).css('top', -$csb_drop.outerHeight());
-                    is_hidden = true;
+                    if (initial_setup) {
+                        //$csb_drop.css('opacity', 0).show().css('top', -$csb_drop.outerHeight()).css('left', -$csb_drop.outerWidth());
+                        $csb_drop.show();
+                        initial_dropdown_height = $csb_drop.outerHeight();
+                        // Set the dropdown to upper left to avoid overflow scrollbars on body
+                        wrap_y = $wrap.getY();
+                        // prevX = -$csb_drop.outerWidth();
+                        prevY = -$csb_drop.outerHeight();
+                        $csb_drop
+                            .css('visibility', 'hidden')
+                            .css('width', $wrap.outerWidth())
+                            // .css('left', prevX)
+                            .css('top', prevY);
+                        is_hidden = true;
+                        if (scroll_amount) {
+                            document_has_overflow_y = true;
+                        } else {
+                            document_has_overflow_y = false;
+                        }
+                        // $csb_drop.css('visibility', 'hidden').css('width', $wrap.outerWidth()).css('left', -$csb_drop.outerWidth()).css('top', -$csb_drop.outerHeight());
+                    } else {
+                        wrap_y = prevY;
+                        // prevY = -$csb_drop.outerHeight();
+                        // $csb_drop.css('top', prevY);
+                    }
+                    console.log('csb_drop initial height: ' + initial_dropdown_height);
+                    normal_dropdown_target_y = ($wrap.outerHeight() + wrap_y) + parseInt($csb_drop.css('margin-top'), 10);
+                    initial_normal_total_height = initial_dropdown_height + normal_dropdown_target_y;
+                    console.log('window_height:', window_height, 'initial_normal_total_height', initial_normal_total_height);
                     if (window_height < initial_normal_total_height) {
                         //console.log('WINDOW HEIGHT: ' + window_height + ', INITIAL DROPDOWN HEIGHT: ' + initial_dropdown_height + ', INITIAL TOTAL HEIGHT: ' + initial_normal_total_height);
                         //console.log('TOP: ' + $csb_drop.css('top') + ', LEFT: ' + $csb_drop.css('left'));
                         top_height = wrap_y - ((reverse_drop) ? parseInt($csb_drop.css('margin-bottom'), 10) : parseInt($csb_drop.css('margin-top'), 10));
-                        if (top_height >= initial_dropdown_height) {
+                        console.log('top_height:', top_height, 'initial_dropdown_height:', initial_dropdown_height);
+                        if (top_height > initial_dropdown_height) {
                             //csb_drop.style.top = '';
                             reset_top = true;
                             csb_ol_wrap.style.maxHeight = '';
@@ -243,6 +279,9 @@
                                 $csb_drop.removeClass('regular');
                                 $wrap.addClass('csb-reverse');
                                 reverse_drop = true;
+                            }
+                            if (initial_setup && !document_has_overflow_y) {                    
+                                $body.addClass('csb-overflow-hidden');
                             }
                             console.log('drop above');
                         } else {
@@ -254,6 +293,9 @@
                                 }
                                 $csb_drop.css('top', 0);
                                 csb_ol_wrap.style.maxHeight = '100%';
+                                if (initial_setup && !document_has_overflow_y) {                    
+                                    $body.addClass('csb-overflow-hidden');
+                                }
                                 console.log('top sticky');
                             } else {
                                 if (reverse_drop) {
@@ -275,7 +317,7 @@
                             $wrap.removeClass('csb-reverse');
                             reverse_drop = false;
                         }
-                        // console.log('normal');
+                        console.log('normal');
                     }
                     // console.log($csb_drop.css('top'));
                 };
@@ -310,12 +352,10 @@
                         $csb_drop.addClass('regular');
                         $wrap.removeClass('csb-reverse');
                         reverse_drop = false;
+                        console.log('reverse_drop: ' + reverse_drop);
                     }
-                    //$csb_drop.css('opacity', 0).show().css('top', -$csb_drop.outerHeight()).css('left', -$csb_drop.outerWidth());
-                    $csb_drop.show();
-                    initial_dropdown_height = $csb_drop.outerHeight();
                     // $window.on('resize', calculateDropdownPosition);
-                    calculateDropdownPosition();
+                    calculateDropdownPosition(true);
                     raf_id = requestAnimationFrame(rafCallback);
                     //wrap.scrollIntoView();
                     if (typeof wrap.scrollIntoViewIfNeeded === "function") {
@@ -325,7 +365,7 @@
                     // $csb_drop.trigger('focus').on('blur', closeCSB);
                     document.body.addEventListener('mousedown', bodyHandler, true);
                     document.body.addEventListener('touchstart', bodyHandler, true);
-                    $window.on('blur', closeCSB);
+                    // $window.on('blur', closeCSB);
                     trigger_param_list.push(parts);
                     $this.trigger('csb:open', trigger_param_list);
                     trigger_param_list.length = 0;
@@ -350,8 +390,14 @@
                     cancelAnimationFrame(raf_id);
                     document.body.removeEventListener('mousedown', bodyHandler, true);
                     document.body.removeEventListener('touchstart', bodyHandler, true);
-                    $window.off('blur', closeCSB);
+                    // $window.off('blur', closeCSB);
                     $csb_drop.hide();
+                    csb_drop.style.bottom = '';
+                    // csb_drop.style.left = '';
+                    csb_drop.style.right = '';
+                    csb_drop.style.top = '';
+                    // csb_drop.style.width = '';
+                    csb_ol_wrap.style.maxHeight = '';
                     // $csb_drop.off('blur', closeCSB).hide();
                     //console.log('closed');
                     // csb_drop.style.bottom = '';
