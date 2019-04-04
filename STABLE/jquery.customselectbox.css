@@ -1,0 +1,185 @@
+.csb-container {
+    min-width: 50px;
+    position: relative;
+    display: inline-block;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+}
+
+.csb-container,
+body .csb-drop {
+    font-family: Arial;
+    font-size: 12px;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+}
+
+.csb-disabled {
+    opacity: 0.5;
+}
+
+.csb-container .csb-single {
+    cursor: pointer;
+    border: solid 1px #c0c0c0;
+    /* box-sizing: border-box; */
+    border-radius: 1px;
+    padding-left: 5px;
+    background-color: #fff;
+    background: -webkit-gradient(linear, 50% 0, 50% 100%, color-stop(20%,#fff), color-stop(50%,#f6f6f6), color-stop(52%,#eee), color-stop(100%,#f4f4f4));
+    background: -webkit-linear-gradient(top, #fff 20%, #f6f6f6 50%, #eee 52%, #f4f4f4 100%);
+    background: -moz-linear-gradient(top, #fff 20%, #f6f6f6 50%, #eee 52%, #f4f4f4 100%);
+    background: -o-linear-gradient(top, #fff 20%, #f6f6f6 50%, #eee 52%, #f4f4f4 100%);
+    background: linear-gradient(top, #fff 20%, #f6f6f6 50%, #eee 52%, #f4f4f4 100%);
+    background-clip: padding-box;
+    display: block;
+}
+
+.csb-disabled .csb-single {
+    cursor: default;
+}
+
+.csb-container-active .csb-single {
+    background-color: #ffffff;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    background-image: -webkit-gradient(linear, 50% 0, 50% 100%, color-stop(20%,#eee), color-stop(80%,#fff));
+    background-image: -webkit-linear-gradient(#eee 20%, #fff 80%);
+    background-image: -moz-linear-gradient(#eee 20%, #fff 80%);
+    background-image: -o-linear-gradient(#eee 20%, #fff 80%);
+    background-image: linear-gradient(#eee 20%, #fff 80%);
+}
+
+.csb-container-active.csb-reverse .csb-single {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+.csb-container .csb-label {
+    display: block;
+    min-height: 20px;
+    line-height: 20px;
+    margin-right: 20px;
+}
+
+.csb-container .csb-default .csb-label {
+    color: #999999;
+}
+
+.csb-container .csb-empty .csb-label {
+    color: #999999;
+}
+
+.csb-container .csb-arrow {
+    display: block;
+    position: absolute;
+    width: 20px;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.csb-container .csb-arrow:before {
+    content: " ";
+    display: block;
+    height: 50%;
+}
+
+.csb-container .csb-arrow:after {
+    content: " ";
+    display: block;
+    border-style: solid;
+    border-color: transparent;
+    border-top-color: #808080;
+    border-width: 4px;
+    width: 0px;
+    height: 0px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: -2px;
+}
+
+.csb-container-active .csb-arrow:after {
+    margin-top: -6px;
+    border-color: transparent;
+    border-bottom-color: #a0a0a0;
+}
+
+body .csb-drop,
+.csb-container .csb-drop {
+    background-color: #ffffff;
+    display: block;
+    position: absolute;
+    width: 100%;
+    /* left: -999999em; */
+    left: 0;
+    box-sizing: border-box;
+    border: solid 1px #c0c0c0;
+	border-bottom-width: 0;
+    margin-bottom: -1px;
+    border-radius: 2px 2px 0 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+body .csb-drop.regular,
+.csb-container .csb-drop.regular {
+    border-radius: 0 0 2px 2px;
+    border-top-width: 0;
+	border-bottom-width: 1px;
+    margin-bottom: 0;
+    margin-top: -1px;
+}
+
+/* .csb-container-active .csb-drop {
+    background-color: #ffffff;
+    display: block;
+} */
+
+body .csb-drop .csb-ol-wrap {
+    display: block;
+    max-height: 144px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+body .csb-drop ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+body .csb-drop ul li {
+    height: 18px;
+    line-height: 18px;
+    white-space: nowrap;
+    padding: 0 4px;
+    cursor: default;
+}
+
+body .csb-drop ul li.group-result {
+    font-style: italic;
+    font-weight: 800;
+}
+
+body .csb-drop ul li.active-result {
+    cursor: pointer;
+}
+
+body .csb-drop ul li.disabled-result {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+body .csb-drop ul li.active-result:hover, body .csb-drop ul li.csb-selected {
+    background-color: #f0f0f0;
+}
+
+body .csb-drop ul li.csb-selected {
+    background-color: pink !important;
+}
+
+body .csb-drop ul li.group-option {
+    padding-left: 15px;
+}
